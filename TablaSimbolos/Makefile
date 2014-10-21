@@ -20,7 +20,7 @@ all:	$(EXECUTABLE)
 $(EXECUTABLE): $(OBJS) 
 	$(CC) $(CFLAGS) $(INCS) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR) 
+$(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR) 
 	#depend
 	@echo "$< -> $@"
 	$(CC) $(CFLAGS) $(INCFLAG) -c $< -o $@
@@ -28,8 +28,6 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 
 clean:
 	$(RM) $(OBJDIR)/*.o *~ $(EXECUTABLE)
-
-
 
 #depend: $(SRCS)
 #	makedepend $(INCS) $^# DO NOT DELETE
