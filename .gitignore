@@ -1,3 +1,5 @@
 manual_nasm.pdf
 *.o
 *.exe
+.TablaSimbolos/tabla_pruebas
+./TablaSimbolos/*sublime-workspace

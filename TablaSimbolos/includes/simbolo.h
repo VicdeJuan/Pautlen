@@ -4,6 +4,7 @@
 #include "errors.h"
 
 typedef struct {
+	char * key;
 	short simbolo_type; /* VARIABLE or PARAMETER or FUNCTION */
 	short data_type; /* INT or BOOLEAN*/
 	short variable_type; /* ESCALAR or VECTOR */

@@ -6,7 +6,7 @@
 
 symbol_table *  create_symbol_table(){
 
-symbol_table * ret_table = (symbol_table *) calloc (sizeof(symbol_table),1);
+	symbol_table * ret_table = (symbol_table *) calloc (sizeof(symbol_table),1);
 
 	if (ret_table == NULL)
 	{
@@ -47,5 +47,22 @@ int delete_local_table(symbol_table * table){
 		return 0;
 
 	return 1;	
+}
+
+int add_symbol(symbol_table * table, simbolo * src_sym, int global){
+	
+	if (global)
+	{
+		if (dic_lookup(table->global_table, src_sym->key) == NULL)
+			return dic_add(table->global_table, src_sym->key, src_sym);
+		else
+			return ERR_REPEAT;
+	}else{
+		if (dic_lookup(table->local_table,  src_sym->key) == NULL)
+			return dic_add(table->local_table, src_sym->key, src_sym);
+		else
+			return ERR_REPEAT;
+	}
+
 }
 

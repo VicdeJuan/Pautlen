@@ -1,6 +1,14 @@
 #include "list_helpers.h"
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+
+char* strdup(const char * s)
+{
+    char* p = malloc(strlen(s)+1);
+    if (p) strcpy(p, s);
+    return p;
+}
 
 void* int_duplicator(const void* a)
 {

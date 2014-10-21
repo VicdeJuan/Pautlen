@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g 
+CFLAGS = -g -Wall -pedantic -std=c99 -ggdb
 INCFLAG = -I./includes
 
 OBJDIR = obj
@@ -21,13 +21,9 @@ $(EXECUTABLE): $(OBJS)
 	$(CC) $(CFLAGS) $(INCS) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR) 
-	#depend
 	@echo "$< -> $@"
-	$(CC) $(CFLAGS) $(INCFLAG) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCFLAG) -c $< -o $@
 
 
 clean:
 	$(RM) $(OBJDIR)/*.o *~ $(EXECUTABLE)
-
-#depend: $(SRCS)
-#	makedepend $(INCS) $^# DO NOT DELETE

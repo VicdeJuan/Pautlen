@@ -1,5 +1,11 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 #ifndef MACROS_H
 #define MACROS_H
+
+#define LOCAL 0
+#define GLOBAL 1
 
 #define VARIABLE 1
 #define PARAMETER 2
@@ -11,3 +17,4 @@
 #define MAX_VECTOR_SIZE 64
 
 #endif
+#pragma GCC diagnostic pop
