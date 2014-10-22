@@ -54,6 +54,14 @@ symbol * search_symbol(symbol_table * table, char * key, int global);
 
 
 /**
+ * Close local ambit by cleaning local table
+ * @param  table The symbol table to operate with.
+ * @return       OK / ERR.
+ */
+int close_local_ambit(symbol_table * table);
+
+
+/**
  * Look for a function with name key in the table.
  * @param  table  The symbol table to look into.
  * @param  key    The key of the function.

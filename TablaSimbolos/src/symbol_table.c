@@ -75,6 +75,11 @@ symbol * search_symbol(symbol_table *table, char *key, int global){
 		return dic_lookup(table->global_table, key);
 }
 
+int close_local_ambit(symbol_table * table){
+	delete_local_table(table);
+	return OK;
+}
+
 
 /*
 int search_symbol__function(symbol_table * table, char * key, int global){
