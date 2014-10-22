@@ -14,6 +14,7 @@
 #define ERR_MEM -64
 #define ERR_RANGE -128
 #define ERR_SYS -256
-
+#define ERR_GLOBALLY -512
+#define ERR_NOTTYPE -1024
 #endif
 #pragma GCC diagnostic pop

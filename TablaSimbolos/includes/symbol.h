@@ -13,10 +13,10 @@ typedef struct {
 	int pos_parameter; /* just for functions */
 	int num_local_variables; /* just for functions */
 	int pos_local_variables; /* just for functions */
-}simbolo;
+}symbol;
 
 
-int initialize_simbolo(simbolo * simbolo);
+int initialize_simbolo(symbol * simbolo);
 
 
 #endif

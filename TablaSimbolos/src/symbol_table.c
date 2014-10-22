@@ -1,4 +1,5 @@
 #include "symbol_table.h"
+#include "macros.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +50,7 @@ int delete_local_table(symbol_table * table){
 	return 1;	
 }
 
-int add_symbol(symbol_table * table, simbolo * src_sym, int global){
+int add_symbol(symbol_table * table, symbol * src_sym, int global){
 	
 	if (global)
 	{
@@ -66,3 +67,79 @@ int add_symbol(symbol_table * table, simbolo * src_sym, int global){
 
 }
 
+
+symbol * search_symbol(symbol_table *table, char *key, int global){
+	if (global)
+		return dic_lookup(table->global_table, key);
+	else
+		return dic_lookup(table->global_table, key);
+}
+
+
+/*
+int search_symbol__function(symbol_table * table, char * key, int global){
+	symbol * symbol;
+	int ret = ERR;
+	if (global){
+		symbol = search_symbol(table, key, GLOBAL);
+		if (symbol == NULL){
+			return ERR_NOTFOUND;
+		}else{
+			if (symbol->data_type == FUNCTION)
+				return OK;
+			else
+				return ERR_NOTTYPE;
+		}
+
+	} else{
+		if (search_symbol__function(table, key, GLOBAL) == OK)
+			return ERR_GLOBALLY;
+
+	}
+	return OK;
+}
+
+int search_symbol__variale(symbol_table * table, char * key, int global){
+	symbol * symbol;
+	int ret = ERR;
+	if (global){
+		symbol = search_symbol(table, key, GLOBAL);
+		if (symbol == NULL){
+			return ERR_NOTFOUND;
+		}else{
+			if (symbol->data_type == FUNCTION)
+				return OK;
+			else
+				return ERR_NOTTYPE;
+		}
+
+	} else{
+		if (search_symbol__function(table, key, GLOBAL) == OK)
+			return ERR_GLOBALLY;
+
+	}
+	return OK;
+}
+
+int search_symbol__parameter(symbol_table * table, char * key, int global){
+	symbol * symbol;
+	int ret = ERR;
+	if (global){
+		symbol = search_symbol(table, key, GLOBAL);
+		if (symbol == NULL){
+			return ERR_NOTFOUND;
+		}else{
+			if (symbol->data_type == FUNCTION)
+				return OK;
+			else
+				return ERR_NOTTYPE;
+		}
+
+	} else{
+		if (search_symbol__function(table, key, GLOBAL) == OK)
+			return ERR_GLOBALLY;
+
+	}
+	return OK;
+}
+*/

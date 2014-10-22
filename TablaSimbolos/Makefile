@@ -18,7 +18,7 @@ EXECUTABLE = tabla_pruebas
 all:	$(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS) 
-	$(CC) $(CFLAGS) $(INCS) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR) 
 	@echo "$< -> $@"
