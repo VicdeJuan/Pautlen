@@ -20,6 +20,7 @@ typedef struct
  */
 symbol_table *  create_symbol_table();
 
+
 /**
  * Deletes all the symbol table.
  * @param  table the table to be deleted.
@@ -27,12 +28,22 @@ symbol_table *  create_symbol_table();
  */
 void delete_symbol_table(symbol_table * table);
 
+
 /**
  * Cleans the local table of our symbol table.
  * @param  table the symbol table.
  * @return       Error code.
  */
 int delete_local_table(symbol_table * table);
+
+
+/**
+ * Close local ambit by cleaning local table
+ * @param  table The symbol table to operate with.
+ * @return       OK / ERR.
+ */
+int close_local_ambit(symbol_table * table);
+
 
 /**
  * Inserts symbol into the symbol_table, globally or locally, depending on global.
@@ -54,40 +65,4 @@ int add_symbol(symbol_table * table, symbol * src_sym, int global);
 symbol * search_symbol(symbol_table * table, char * key, int global);
 
 
-/**
- * Close local ambit by cleaning local table
- * @param  table The symbol table to operate with.
- * @return       OK / ERR.
- */
-int close_local_ambit(symbol_table * table);
-
-
-/**
- * Look for a function with name key in the table.
- * @param  table  The symbol table to look into.
- * @param  key    The key of the function.
- * @param  global global search's just globally. LOCAL search's locally and globally.
- * @return        OK, ERR_NOTFOUND.
- */
-int search_symbol__function(symbol_table * table, char * key, int global);
-
-
-/**
- * Look for a variable with name key in the table.
- * @param  table  The symbol table to look into.
- * @param  key    The key of the function.
- * @param  global global search's just globally. LOCAL search's locally and globally.
- * @return        OK, ERR_NOTFOUND.
- */
-int search_symbol__variale(symbol_table * table, char * key, int global);
-
-
-/**
- * Look for a function with name key in the table.
- * @param  table  The symbol table to look into.
- * @param  key    The key of the function.
- * @param  global global search's just globally. LOCAL search's locally and globally.
- * @return        OK, ERR_NOTFOUND.
- */
-int search_symbol__parameter(symbol_table * table, char * key, int global);
 #endif

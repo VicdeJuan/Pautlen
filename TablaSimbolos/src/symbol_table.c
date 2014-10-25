@@ -52,6 +52,13 @@ int delete_local_table(symbol_table * table){
 	return 1;	
 }
 
+
+int close_local_ambit(symbol_table * table){
+	delete_local_table(table);
+	table->scope = GLOBAL;
+	return OK;
+}
+
 int add_symbol(symbol_table * table, symbol * src_sym, int global){
 	
 	if (global)
@@ -77,77 +84,3 @@ symbol * search_symbol(symbol_table *table, char *key, int global){
 		return dic_lookup(table->local_table, key);
 }
 
-int close_local_ambit(symbol_table * table){
-	delete_local_table(table);
-	table->scope = GLOBAL;
-	return OK;
-}
-
-
-/*
-int search_symbol__function(symbol_table * table, char * key, int global){
-	symbol * symbol;
-	int ret = ERR;
-	if (global){
-		symbol = search_symbol(table, key, GLOBAL);
-		if (symbol == NULL){
-			return ERR_NOTFOUND;
-		}else{
-			if (symbol->data_type == FUNCTION)
-				return OK;
-			else
-				return ERR_NOTTYPE;
-		}
-
-	} else{
-		if (search_symbol__function(table, key, GLOBAL) == OK)
-			return ERR_GLOBALLY;
-
-	}
-	return OK;
-}
-
-int search_symbol__variale(symbol_table * table, char * key, int global){
-	symbol * symbol;
-	int ret = ERR;
-	if (global){
-		symbol = search_symbol(table, key, GLOBAL);
-		if (symbol == NULL){
-			return ERR_NOTFOUND;
-		}else{
-			if (symbol->data_type == FUNCTION)
-				return OK;
-			else
-				return ERR_NOTTYPE;
-		}
-
-	} else{
-		if (search_symbol__function(table, key, GLOBAL) == OK)
-			return ERR_GLOBALLY;
-
-	}
-	return OK;
-}
-
-int search_symbol__parameter(symbol_table * table, char * key, int global){
-	symbol * symbol;
-	int ret = ERR;
-	if (global){
-		symbol = search_symbol(table, key, GLOBAL);
-		if (symbol == NULL){
-			return ERR_NOTFOUND;
-		}else{
-			if (symbol->data_type == FUNCTION)
-				return OK;
-			else
-				return ERR_NOTTYPE;
-		}
-
-	} else{
-		if (search_symbol__function(table, key, GLOBAL) == OK)
-			return ERR_GLOBALLY;
-
-	}
-	return OK;
-}
-*/

@@ -17,6 +17,10 @@ EXECUTABLE = tabla_pruebas
 
 all:	$(EXECUTABLE)
 
+$(OBJDIR):
+	@echo Creating obj directory
+	@mkdir -p $(OBJDIR)
+
 $(EXECUTABLE): $(OBJS) 
 	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS)
 

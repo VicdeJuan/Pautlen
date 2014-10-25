@@ -11,8 +11,11 @@
 #define JUMP "\r\n"
 #define SPACE "        "
 
+
+/*    	Auxiliary macros to print error messages and not error code.
+
 #define MSG_ERROR "El fichero está mal formado"
-/*
+
 #define MSG_GLOBAL_INTENTO_INSERCION "Intento de inserción en la tabla global del elemento (%s;%d)"
 #define MSG_LOCAL_INTENTO_INSERCION "Intento de inserción en la tabla local del elemento (%s;%d)"
 #define MSG_EXITO_INSERCION "La inserción terminaría con éxito porque el elemento no está"
@@ -77,12 +80,12 @@ int apertura_from_line(symbol_table * table,char * key, int num){
 	initialize_simbolo(simbolo);
 	strcpy(simbolo->key,key);
 
-	/* Para las comprobaciones pertinentes con los ficheros de pureba es necesaria esta asignación, aunque debiera de ser:
+	/*
+	To match with the requested format, it's necessary this assignation, despite it should be:
 	
 		simbolo->symbol_type = FUNCTION;
 
-	ya que se trata de una función.
-	 */
+	because it's a function. */
 	
 	simbolo->symbol_type = num;
 	simbolo->local_identifier = num;
@@ -103,7 +106,7 @@ int main(int argc, char const *argv[])
 {
 	FILE * fin = NULL,*fout = NULL;
 	char line[MAX],key[MAX];
-	int retscan,retval,count=0;
+	int retscan,retval;
 	int * num = malloc (sizeof(int));
 	symbol_table * table = create_symbol_table();
 	
@@ -130,18 +133,17 @@ int main(int argc, char const *argv[])
 	{
 		retscan = sscanf(line, "%s %d",key,num);
 		if (retscan == 2)
-		{ // Hemos leido 2 cosas.
+		{ // We've read 2 things.
 			if (*num >= 0)
-			{	// Estamos con un símbolo
+			{	// We have to work with a symbol.
 				if (insert_from_line(table,key,*num) == OK)
 					fprintf(fout,"%s%s",key,JUMP);
 				else
 					fprintf(fout,"-1%s%s%s",SPACE,key,JUMP);
 			}else if (strcmp(key,"cierre") == 0 && *num == -999)
 			{
-				// Estamos en un cierre.
-				printf("olakase!!:: item:%d\tcount: %d\n", table->local_table->items,count);
-				count += table->local_table->items;	
+				// We have read a "cierre"
+
 				if (close_local_ambit(table) == OK){
 					fprintf(fout,"%s%s",key,JUMP);
 				}
@@ -150,7 +152,7 @@ int main(int argc, char const *argv[])
 			}
 			else if (*num < -1)
 			{
-				// Estamos con un ámbito.
+				// A new scope must be opened.
 				if (apertura_from_line(table, key, *num) == OK)
 				{
 					if (insert_from_line(table,key,*num) == OK)
@@ -166,22 +168,25 @@ int main(int argc, char const *argv[])
 			}
 		}else if (retscan == 1)
 		{
-
+			// We hace to search.
 			retval = search_from_line(table, key);
 			if (retval == ERR_NOTFOUND )
 				retval = -1;
 			fprintf(fout,"%s%s%d%s",key,SPACE,retval,JUMP);
 		}else
+			// Bad formated file.
 			fprintf(fout,"-1%s%s%s",SPACE,key,JUMP); 
 	}
 
-	printf("%d\n", count + table->global_table->items);
+
+
+	/* Close files and free memory used. */
+
 	delete_symbol_table(table);
 	fclose(fin);
 	if (fout != NULL)
-	{
 		fclose(fout);
-	}
+	
 	free(num);
 	return 0;
 }
