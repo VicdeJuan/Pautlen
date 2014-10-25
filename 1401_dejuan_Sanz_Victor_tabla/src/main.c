@@ -118,6 +118,9 @@ int main(int argc, char const *argv[])
 			printf("Error al abrir el fichero de entrada: %s%s", argv[1],JUMP);
 			return 1;
 		}
+	}else{
+		printf("Introduzca un fichero de entrada.\n");
+		return 1;
 	}
 	if (argc >=3)
 	{

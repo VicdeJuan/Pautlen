@@ -1,0 +1,486 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"IN",
+				"INCS"
+			],
+			[
+				"OBJ",
+				"OBJS"
+			],
+			[
+				"sym",
+				"symbol_table	struct"
+			],
+			[
+				"symo",
+				"symbol_table	typedef"
+			],
+			[
+				"dic_ew",
+				"dic_new_withstr()	dictionary *"
+			],
+			[
+				"dic_",
+				"dic_destroy(dictionary *dic, destructor dc)	void"
+			],
+			[
+				"delete",
+				"delete_symbol_table(symbol_table *table)	int"
+			],
+			[
+				"dic_new",
+				"dic_new_withstr()	dictionary *"
+			],
+			[
+				"s",
+				"symbol	typedef"
+			],
+			[
+				"C",
+				"CFLAGS"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "src/symbol_table.c",
+			"settings":
+			{
+				"buffer_size": 1280,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "includes/macros.h",
+			"settings":
+			{
+				"buffer_size": 329,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "src/simbolo.c",
+			"settings":
+			{
+				"buffer_size": 553,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "includes/symbol_table.h",
+			"settings":
+			{
+				"buffer_size": 1013,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 54.0,
+		"selected_items":
+		[
+			[
+				"insta",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 139.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/simbolo.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/src/dictionary.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/dictionary.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/errors.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/macros.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/Makefile",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/list_helpers.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/src/list_helpers.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/symbol_table.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/symbol_table.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/src/simbolo.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/symbol.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/includes/symbol.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/symbol.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/symbol_table.h",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/asdf",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/list.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/src/symbol_table.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/src/symbol.c",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/pautlen.sublime-project",
+		"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/src/main.c",
+		"/home/vicdejuan/Documents/Programacion/Sublime Text 2/Data/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/home/vicdejuan/Documents/Programacion/Sublime Text 2/Data/Packages/User/SublimeClang.sublime-settings",
+		"/home/vicdejuan/Documents/Carrera/Tercero/redes2/G-2301-11-P2/Makefile"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"symbol",
+			"        ",
+			"symbol",
+			".o",
+			"includes",
+			"INCLUDES",
+			"SRCS",
+			"SRC",
+			"src",
+			"MAIN",
+			"        ",
+			".c",
+			".o:",
+			".o",
+			" \n",
+			".c",
+			"cpp",
+			"hello",
+			"struct",
+			"symbol_table",
+			"../includes/",
+			".c",
+			"\n",
+			"INCLUDES",
+			"include ",
+			"clean",
+			"free",
+			"= 0",
+			"int",
+			"short",
+			"doc",
+			"option",
+			"g++",
+			"LIST_HELPERS_H"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "src/symbol_table.c",
+					"settings":
+					{
+						"buffer_size": 1280,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1090,
+								1090
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 225.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "includes/macros.h",
+					"settings":
+					{
+						"buffer_size": 329,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								199,
+								199
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 2,
+					"file": "src/simbolo.c",
+					"settings":
+					{
+						"buffer_size": 553,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "includes/symbol_table.h",
+					"settings":
+					{
+						"buffer_size": 1013,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								936,
+								936
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 315.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			0.5,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.clang":
+	{
+		"height": 112.0
+	},
+	"output.exec":
+	{
+		"height": 112.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"dic",
+				"includes/dictionary.h"
+			],
+			[
+				"dicc",
+				"src/dictionary.c"
+			],
+			[
+				"ma",
+				"includes/macros.h"
+			],
+			[
+				"err",
+				"includes/errors.h"
+			],
+			[
+				"sym",
+				"includes/symbol_table.h"
+			],
+			[
+				"sim",
+				"includes/simbolo.h"
+			],
+			[
+				"s",
+				"src/simbolo.c"
+			],
+			[
+				"tabl",
+				"src/symbol_table.c"
+			],
+			[
+				"list",
+				"includes/list_helpers.h"
+			],
+			[
+				"lis",
+				"src/list_helpers.c"
+			],
+			[
+				"mac",
+				"includes/macros.h"
+			],
+			[
+				"er",
+				"includes/errors.h"
+			],
+			[
+				"",
+				"/home/vicdejuan/Documents/Carrera/Cuarto/1_Semestre/Pautlen/TablaSimbolos/symbol_table.c"
+			],
+			[
+				"symc",
+				"symbol_table.c"
+			],
+			[
+				"symh",
+				"includes/symbol.h"
+			],
+			[
+				"as",
+				"asdf"
+			],
+			[
+				"sy",
+				"symbol.h"
+			],
+			[
+				"syh",
+				"symbol.h"
+			],
+			[
+				"ta",
+				"symbol_table.h"
+			],
+			[
+				"sm",
+				"symbol.c"
+			],
+			[
+				".c",
+				"list.c"
+			],
+			[
+				"mak",
+				"Makefile"
+			],
+			[
+				"di",
+				"includes/dictionary.h"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true
+}

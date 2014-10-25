@@ -12,6 +12,11 @@ OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/% , $(patsubst %.c,%.o, $(SRCS)))
 
 EXECUTABLE = tabla_pruebas
 
+GROUP = 1401
+LAST = dejuan_Sanz
+NAME = Victor
+DELIVER = $(GROUP)_$(LAST)_$(NAME)
+TOZIP = ./src ./includes ./Makefile
 
 .PHONY: depend clean
 
@@ -31,3 +36,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR)
 
 clean:
 	$(RM) $(OBJDIR)/*.o *~ $(EXECUTABLE)
+
+
+pack:
+	@zip -r $(DELIVER)_tabla.zip $(TOZIP)
