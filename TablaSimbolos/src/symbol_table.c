@@ -41,7 +41,7 @@ void delete_symbol_table(symbol_table *table){
 
 
 int delete_local_table(symbol_table * table){
-	dic_destroy(table->local_table, NULL);
+	dic_destroy(table->local_table, free);
 	table->local_table = dic_new_withstr();
 	
 	if (table->local_table == NULL)
@@ -77,6 +77,7 @@ symbol * search_symbol(symbol_table *table, char *key, int global){
 
 int close_local_ambit(symbol_table * table){
 	delete_local_table(table);
+	table->scope = GLOBAL;
 	return OK;
 }
 

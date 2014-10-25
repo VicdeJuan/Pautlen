@@ -30,19 +30,20 @@
 #define MSG_CIERRE_3 "La operación termina con éxito\n"
 
 
-int insert_from_line(symbol_table * table, char * key,int  num,int ambit){
+int insert_from_line(symbol_table * table, char * key, int  num){
 	symbol simbolo; 
 
 	initialize_simbolo(&simbolo);
-	simbolo.key = key;
+	strcpy(simbolo.key,key);
 	simbolo.data_type = num;
 
-	return add_symbol(table, &simbolo, ambit);
+	return add_symbol(table, &simbolo, table->scope);
 }
 
-int search_from_line(symbol_table * table, char * key,int  num,int ambit){
+int search_from_line(symbol_table * table, char * key,int  num){
 
-	symbol * simbolo = search_symbol(table, key, ambit);
+	/* Just in actual scope. */
+	symbol * simbolo = search_symbol(table, key, table->scope);
 	if (simbolo == NULL)
 		return ERR_NOTFOUND;
 	else if(simbolo->data_type == num){
@@ -54,22 +55,49 @@ int search_from_line(symbol_table * table, char * key,int  num,int ambit){
 }
 
 int apertura_from_line(symbol_table * table,char * key, int num){
+
+	symbol simbolo;
+
+	initialize_simbolo(&simbolo);
+	strcpy(simbolo.key,key);
+	simbolo.data_type = FUNCTION;
+	simbolo.local_identifier = num;
+
+	if (search_symbol(table, key, GLOBAL) != NULL)
+		return ERR_GLOBALLY;
+		
+
+	add_symbol(table, &simbolo, GLOBAL);	
+
+	table->scope = LOCAL;
+
 	return OK;
 }
 
-int apertura_insert_from_line(symbol_table * table,char * key, int num,int ambit){
-	return OK;
-}
 
 int main(int argc, char const *argv[])
 {
-	FILE * f = fopen("pruebas/prueba1_entrada.txt", "r");
+	FILE * fin = NULL,*fout = NULL;
+	if (argc >= 1)
+	{
+		fin = fopen(argv[1], "r");
+		if (fin == NULL)
+			printf("Error al abrir el fichero de entrada: %s\n", argv[1]);
+		return 1;
+	}
+	if (argc >=2)
+	{
+		fout = fopen(argv[2], "w");
+		if (fin == NULL)
+			printf("Error al abrir el fichero de salida: %s\n", argv[2]);
+	}else
+		fout = stdout;
+
 	char line[MAX],key[MAX];
 	int num,retscan;
 	symbol_table * table = create_symbol_table();
-	int ambit = GLOBAL;
 
-	while(fgets(line, MAX + 10, f) != NULL)
+	while(fgets(line, MAX + 10, fin) != NULL)
 	{
 		retscan = sscanf(line, "%s %d",key,&num);
 		if (retscan == 2)
@@ -77,7 +105,7 @@ int main(int argc, char const *argv[])
 			if (num >= 0)
 			{	// Estamos con un símbolo
 				printf(MSG_GLOBAL_INTENTO_INSERCION, key,num);
-				if (insert_from_line(table,key,num,ambit) == OK)
+				if (insert_from_line(table,key,num) == OK)
 					printf(MSG_EXITO_INSERCION);
 				else
 					printf(MSG_FALLO_INSERCION);
@@ -85,11 +113,10 @@ int main(int argc, char const *argv[])
 			{
 				// Estamos con un ámbito.
 				printf(MSG_APERTURA_AMBITO,key);
-				ambit = LOCAL;
 				if (apertura_from_line(table, key, num) == OK)
 				{
 					printf(MSG_EXITO_AMBITO_1);
-					if (apertura_insert_from_line(table,key,num,ambit) == OK)
+					if (insert_from_line(table,key,num) == OK)
 						printf(MSG_EXITO_AMBITO_2);
 					else
 						printf(MSG_ERROR);
@@ -99,7 +126,6 @@ int main(int argc, char const *argv[])
 			}else if (strcmp(key,"cierre") == 0 && num == -999)
 			{
 				// Estamos en un cierre.
-				ambit = GLOBAL;
 				if (close_local_ambit(table) == OK)
 					printf("%s%s%s",MSG_CIERRE_1,MSG_CIERRE_2,MSG_CIERRE_3);
 				else
@@ -112,7 +138,7 @@ int main(int argc, char const *argv[])
 		}else if (retscan == 1)
 		{
 			printf(MSG_INTENTO_BUSQUEDA,key);
-			if (search_from_line(table, key, 0, ambit) == OK)
+			if (search_from_line(table, key, LOCAL) == OK && search_from_line(table, key, GLOBAL) == OK)
 				printf(MSG_EXITO_BUSQUEDA);
 			else
 				printf(MSG_FALLO_BUSQUEDA);
@@ -121,7 +147,11 @@ int main(int argc, char const *argv[])
 	}
 
 	delete_symbol_table(table);
-	fclose(f);
+	fclose(fin);
+	if (fout != NULL)
+	{
+		fclose(fout);
+	}
 	return 0;
 }
 

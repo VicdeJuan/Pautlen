@@ -1,9 +1,7 @@
-1) Comprobar insert_from_line funciona bien con el = sin el strdup.
-
 2) Terminar de implementar las funciones.
 
 3) Modular.
 
 4) Recibir argumento para leer.
 
-5) Test de pruebas de verda.
+5) Test de pruebas de verdad.

@@ -9,6 +9,7 @@ typedef struct
 {
 	dictionary * global_table;
 	dictionary * local_table;
+	int scope;
 }symbol_table;
 
 
