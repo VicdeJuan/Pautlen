@@ -11,7 +11,7 @@
 int initialize_simbolo(symbol * simbolo){
 	if (simbolo == NULL)
 		return ERR;
-	simbolo->simbolo_type = 0; /* VARIABLE or PARAMETER or FUNCTION */
+	simbolo->symbol_type = 0; /* VARIABLE or PARAMETER or FUNCTION */
 	simbolo->data_type = 0; /* INT or BOOLEAN*/
 	simbolo->variable_type = 0; /* ESCALAR or VECTOR */
 	simbolo->size = 0;

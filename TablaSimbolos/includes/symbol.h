@@ -7,7 +7,7 @@
 
 typedef struct {
 	char  key[MAX_LEN_SYMBOL];
-	short simbolo_type; /* VARIABLE or PARAMETER or FUNCTION */
+	short symbol_type; /* VARIABLE or PARAMETER or FUNCTION */
 	short data_type; /* INT or BOOLEAN*/
 	short variable_type; /* ESCALAR or VECTOR */
 	int size;	/* size of the vector */

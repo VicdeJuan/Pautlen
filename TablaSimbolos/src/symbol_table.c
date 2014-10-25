@@ -1,3 +1,4 @@
+
 #include "symbol_table.h"
 #include "macros.h"
 
@@ -28,14 +29,15 @@ symbol_table *  create_symbol_table(){
 		free(ret_table);
 		return NULL;
 	}
+	ret_table->scope = GLOBAL;
 
 	return ret_table;
 }
 
 
 void delete_symbol_table(symbol_table *table){
-	dic_destroy(table->global_table, NULL);
-	dic_destroy(table->local_table, NULL);
+	dic_destroy(table->global_table, free);
+	dic_destroy(table->local_table, free);
 	free(table);
 }
 
@@ -72,7 +74,7 @@ symbol * search_symbol(symbol_table *table, char *key, int global){
 	if (global)
 		return dic_lookup(table->global_table, key);
 	else
-		return dic_lookup(table->global_table, key);
+		return dic_lookup(table->local_table, key);
 }
 
 int close_local_ambit(symbol_table * table){
