@@ -10,13 +10,13 @@ INCS := $(wildcard $(INCDIR)/*.h)
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/% , $(patsubst %.c,%.o, $(SRCS)))
 
-EXECUTABLE = tabla_pruebas
+EXECUTABLE = prueba_tabla
 
 GROUP = 1401
 LAST = dejuan_Sanz
 NAME = Victor
 DELIVER = $(GROUP)_$(LAST)_$(NAME)
-TOZIP = ./src ./includes ./Makefile
+TOZIP = $(DELIVER)/src $(DELIVER)/includes $(DELIVER)/Makefile
 
 .PHONY: depend clean
 
@@ -33,10 +33,11 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR)
 	@echo "$< -> $@"
 	@$(CC) $(CFLAGS) $(INCFLAG) -c $< -o $@
 
+final: all clean pack
 
 clean:
-	$(RM) $(OBJDIR)/*.o *~ $(EXECUTABLE)
-
+	$(RM) *~ $(EXECUTABLE)
+	$(RM) -r $(OBJDIR)
 
 pack:
-	@zip -r $(DELIVER)_tabla.zip $(TOZIP)
+	zip -r $(DELIVER)_tabla.zip . -i $(TOZIP)
