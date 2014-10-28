@@ -18,7 +18,7 @@ NAME = Victor
 DELIVER = $(GROUP)_$(LAST)_$(NAME)
 TOZIP = $(DELIVER)/src $(DELIVER)/includes $(DELIVER)/Makefile
 
-.PHONY: depend clean
+.PHONY: depend clean pack final
 
 all:	$(EXECUTABLE)
 
