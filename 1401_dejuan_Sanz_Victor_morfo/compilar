@@ -1,0 +1,2 @@
+flex $1
+gcc -Wall -ggdb lex.yy.c
