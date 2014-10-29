@@ -27,7 +27,7 @@ $(OBJDIR):
 	@mkdir -p $(OBJDIR)
 
 $(EXECUTABLE): $(OBJS) 
-	@flex rules.l
+	@flex alfa.l
 	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS) lex.yy.c
 
 
