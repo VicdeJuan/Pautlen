@@ -5178,14 +5178,14 @@ YY_RULE_SETUP
 /** Errores */
 case 42:
 YY_RULE_SETUP
-#line 156 "alfa.l"
+#line 157 "alfa.l"
 {
  	 return TOK_ERROR;
 }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 161 "alfa.l"
+#line 162 "alfa.l"
 ECHO;
 	YY_BREAK
 #line 5192 "lex.yy.c"
@@ -6186,7 +6186,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 161 "alfa.l"
+#line 162 "alfa.l"
 
 
 

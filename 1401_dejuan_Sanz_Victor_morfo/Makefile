@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -g -Wall -pedantic -std=c99 -ggdb
+CFLAGS = -ggdb
 INCFLAG = -I./includes
 
 OBJDIR = obj
@@ -26,7 +26,7 @@ $(OBJDIR):
 	@echo Creating obj directory
 	@mkdir -p $(OBJDIR)
 
-$(EXECUTABLE): $(OBJS) 
+$(EXECUTABLE): $(OBJS) alfa.l
 	@flex alfa.l
 	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS) $(LFLAGS) $(LIBS) lex.yy.c
 

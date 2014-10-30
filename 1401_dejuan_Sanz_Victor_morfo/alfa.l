@@ -153,6 +153,7 @@ return {
 }
 
  /** Errores */
+
 . {
  	 return TOK_ERROR;
 }
