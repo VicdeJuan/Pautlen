@@ -1,0 +1,22 @@
+compilar con -ydv.
+
+d: para que genere tokens.h él solo (llamado y.tab.h)
+y: para el nombre de ficheros.
+v: para generar output.y que describe el autómata a pila.
+
+
+En el %.l tenemos que inclcuir y.tab.h en vez de tokens.h.
+
+
+Reglas de bison:
+
+SimboloNoTerminal1 : S₀ S₁ S₂ { acción colateral asociada a la reducción de esta regla}
+					| S₁ S₂ {acción colateral ...}
+					|
+					;
+
+#el último en blanco es el λ. La "|" indica varias opciones.
+
+El algoritmo/gramatica/analizador es LALR(1).
+
+La acción colateral va escrita en C.
