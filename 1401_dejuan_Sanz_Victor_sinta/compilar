@@ -1,0 +1,3 @@
+flex alfa.l
+bison -d -y -v alfa.y
+gcc -Wall -ggdb y.tab.c main.c

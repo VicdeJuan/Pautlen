@@ -1,0 +1,72 @@
+1 <programa> ::= main { <declaraciones> <funciones> <sentencias> }
+2 <declaraciones> ::= <declaracion> 
+3 | <declaracion> <declaraciones> 
+4 <declaracion> ::= <clase> <identificadores> ;
+5 <clase> ::= <clase_escalar> 
+7 | <clase_vector> 
+9 <clase_escalar> ::= <tipo> 
+10 <tipo> ::= int
+11 | boolean
+15 <clase_vector> ::= array <tipo> [ <constante_entera> ]
+18 <identificadores> ::= <identificador> 
+19 | <identificador> , <identificadores> 
+20 <funciones> ::= <funcion> <funciones> 
+21 | 
+22 <funcion> ::= function <tipo> <identificador> ( <parametros_funcion> ) {
+<declaraciones_funcion> <sentencias> }
+23 <parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion> 
+24 | 
+25 <resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion> 
+26 | 
+27 <parametro_funcion> ::= <tipo> <identificador> 
+28 <declaraciones_funcion> ::= <declaraciones> 
+29 | 
+30 <sentencias> ::= <sentencia> 
+31 | <sentencia> <sentencias> 
+32 <sentencia> ::= <sentencia_simple> ;
+33 | <bloque> 
+34 <sentencia_simple> ::= <asignacion> 
+35 | <lectura> 
+36 | <escritura> 
+38 | <retorno_funcion> 
+40 <bloque> ::= <condicional> 
+41 | <bucle>
+43 <asignacion> ::= <identificador> = <exp> 
+44 | <elemento_vector> = <exp> 
+48 <elemento_vector> ::= <identificador> [ <exp> ] 
+50 <condicional> ::= if ( <exp> ) { <sentencias> }
+51 | if ( <exp> ) { <sentencias> } else { <sentencias> }
+52 <bucle> ::= while ( <exp> ) { <sentencias> }
+54 <lectura> ::= scanf <identificador> 
+56 <escritura> ::= printf <exp> 
+61 <retorno_funcion> ::= return <exp>
+72 <exp> ::= <exp> + <exp> 
+73 | <exp> - <exp> 
+74 | <exp> / <exp> 
+75 | <exp> * <exp> 
+76 | - <exp> 
+77 | <exp> && <exp> 
+78 | <exp> || <exp> 
+79 | ! <exp> 
+80 | <identificador> 
+81 | <constante> 
+82 | ( <exp> )
+83 | ( <comparacion> )
+85 | <elemento_vector> 
+88 | <identificador> ( <lista_expresiones> )
+89 <lista_expresiones> ::= <exp> <resto_lista_expresiones> 
+90 | 
+91 <resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones> 
+92 | 
+93 <comparacion> ::= <exp> == <exp> 
+94 | <exp> != <exp> 
+95 | <exp> <= <exp> 
+96 | <exp> >= <exp> 
+97 | <exp> < <exp> 
+98 | <exp> > <exp> 
+99 <constante> ::= <constante_logica> 
+100 | <constante_entera> 
+102 <constante_logica> ::= true
+103 | false
+104 <constante_entera> ::= TOK_CONSTANTE_ENTERA
+108 <identificador> ::= TOK_IDENTIFICADOR

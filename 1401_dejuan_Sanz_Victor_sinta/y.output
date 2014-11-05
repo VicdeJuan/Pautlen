@@ -1,0 +1,275 @@
+Grammar
+
+    0 $accept: texto $end
+
+    1 texto: oracion '.'
+    2      | oracion '.' texto
+
+    3 oracion: sujeto predicado
+    4        | predicado sujeto
+
+    5 sujeto: grupo_nombre
+
+    6 grupo_nombre: articulo nombre
+    7             | nombre
+
+    8 predicado: verbo complemento
+
+    9 complemento: preposicion grupo_nombre
+   10            | grupo_nombre
+
+   11 articulo: ARTICULO
+
+   12 nombre: NOMBRE
+
+   13 verbo: VERBO
+
+   14 preposicion: PREPOSICION
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'.' (46) 1 2
+error (256)
+ARTICULO (258) 11
+NOMBRE (259) 12
+VERBO (260) 13
+PREPOSICION (261) 14
+
+
+Nonterminals, with rules where they appear
+
+$accept (8)
+    on left: 0
+texto (9)
+    on left: 1 2, on right: 0 2
+oracion (10)
+    on left: 3 4, on right: 1 2
+sujeto (11)
+    on left: 5, on right: 3 4
+grupo_nombre (12)
+    on left: 6 7, on right: 5 9 10
+predicado (13)
+    on left: 8, on right: 3 4
+complemento (14)
+    on left: 9 10, on right: 8
+articulo (15)
+    on left: 11, on right: 6
+nombre (16)
+    on left: 12, on right: 6 7
+verbo (17)
+    on left: 13, on right: 8
+preposicion (18)
+    on left: 14, on right: 9
+
+
+State 0
+
+    0 $accept: . texto $end
+
+    ARTICULO  shift, and go to state 1
+    NOMBRE    shift, and go to state 2
+    VERBO     shift, and go to state 3
+
+    texto         go to state 4
+    oracion       go to state 5
+    sujeto        go to state 6
+    grupo_nombre  go to state 7
+    predicado     go to state 8
+    articulo      go to state 9
+    nombre        go to state 10
+    verbo         go to state 11
+
+
+State 1
+
+   11 articulo: ARTICULO .
+
+    $default  reduce using rule 11 (articulo)
+
+
+State 2
+
+   12 nombre: NOMBRE .
+
+    $default  reduce using rule 12 (nombre)
+
+
+State 3
+
+   13 verbo: VERBO .
+
+    $default  reduce using rule 13 (verbo)
+
+
+State 4
+
+    0 $accept: texto . $end
+
+    $end  shift, and go to state 12
+
+
+State 5
+
+    1 texto: oracion . '.'
+    2      | oracion . '.' texto
+
+    '.'  shift, and go to state 13
+
+
+State 6
+
+    3 oracion: sujeto . predicado
+
+    VERBO  shift, and go to state 3
+
+    predicado  go to state 14
+    verbo      go to state 11
+
+
+State 7
+
+    5 sujeto: grupo_nombre .
+
+    $default  reduce using rule 5 (sujeto)
+
+
+State 8
+
+    4 oracion: predicado . sujeto
+
+    ARTICULO  shift, and go to state 1
+    NOMBRE    shift, and go to state 2
+
+    sujeto        go to state 15
+    grupo_nombre  go to state 7
+    articulo      go to state 9
+    nombre        go to state 10
+
+
+State 9
+
+    6 grupo_nombre: articulo . nombre
+
+    NOMBRE  shift, and go to state 2
+
+    nombre  go to state 16
+
+
+State 10
+
+    7 grupo_nombre: nombre .
+
+    $default  reduce using rule 7 (grupo_nombre)
+
+
+State 11
+
+    8 predicado: verbo . complemento
+
+    ARTICULO     shift, and go to state 1
+    NOMBRE       shift, and go to state 2
+    PREPOSICION  shift, and go to state 17
+
+    grupo_nombre  go to state 18
+    complemento   go to state 19
+    articulo      go to state 9
+    nombre        go to state 10
+    preposicion   go to state 20
+
+
+State 12
+
+    0 $accept: texto $end .
+
+    $default  accept
+
+
+State 13
+
+    1 texto: oracion '.' .
+    2      | oracion '.' . texto
+
+    ARTICULO  shift, and go to state 1
+    NOMBRE    shift, and go to state 2
+    VERBO     shift, and go to state 3
+
+    $default  reduce using rule 1 (texto)
+
+    texto         go to state 21
+    oracion       go to state 5
+    sujeto        go to state 6
+    grupo_nombre  go to state 7
+    predicado     go to state 8
+    articulo      go to state 9
+    nombre        go to state 10
+    verbo         go to state 11
+
+
+State 14
+
+    3 oracion: sujeto predicado .
+
+    $default  reduce using rule 3 (oracion)
+
+
+State 15
+
+    4 oracion: predicado sujeto .
+
+    $default  reduce using rule 4 (oracion)
+
+
+State 16
+
+    6 grupo_nombre: articulo nombre .
+
+    $default  reduce using rule 6 (grupo_nombre)
+
+
+State 17
+
+   14 preposicion: PREPOSICION .
+
+    $default  reduce using rule 14 (preposicion)
+
+
+State 18
+
+   10 complemento: grupo_nombre .
+
+    $default  reduce using rule 10 (complemento)
+
+
+State 19
+
+    8 predicado: verbo complemento .
+
+    $default  reduce using rule 8 (predicado)
+
+
+State 20
+
+    9 complemento: preposicion . grupo_nombre
+
+    ARTICULO  shift, and go to state 1
+    NOMBRE    shift, and go to state 2
+
+    grupo_nombre  go to state 22
+    articulo      go to state 9
+    nombre        go to state 10
+
+
+State 21
+
+    2 texto: oracion '.' texto .
+
+    $default  reduce using rule 2 (texto)
+
+
+State 22
+
+    9 complemento: preposicion grupo_nombre .
+
+    $default  reduce using rule 9 (complemento)
