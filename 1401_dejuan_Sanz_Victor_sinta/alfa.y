@@ -3,6 +3,11 @@
 	#include <stdlib.h>
 	#include "lex.yy.h"
 
+void yyerror(char* s){
+
+	fprintf(yyout,"\n");
+	return;
+}
 
 %}
 
@@ -147,8 +152,3 @@ identificador : TOK_IDENTIFICADOR { fprintf(yyout,";R108:	<identificador> ::= TO
 
 %%
 
-void yyerror(char* s){
-
-	fprintf(yyout,"\n");
-	return;
-}
