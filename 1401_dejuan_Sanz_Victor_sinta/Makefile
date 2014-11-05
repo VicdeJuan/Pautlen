@@ -17,11 +17,15 @@ GROUP = 1401
 LAST = dejuan_Sanz
 NAME = Victor
 DELIVER = $(GROUP)_$(LAST)_$(NAME)
-TOZIP = $(DELIVER)/src $(DELIVER)/includes $(DELIVER)/Makefile
+TOZIP = Makefile alfa.* pruebaSintactico.c
 
 .PHONY: clean pack final
 
-all: $(EXECUTABLE)
+all: mkdirs $(EXECUTABLE)
+
+mkdirs:
+	@mkdir -p includes
+	@mkdir -p src
 
 src/y.tab.c: alfa.y
 	@bison -yv -Wnone --defines=includes/y.tab.h -o src/y.tab.c alfa.y
@@ -37,7 +41,7 @@ final: all clean pack
 
 clean:
 	$(RM) *~ $(EXECUTABLE)
-	$(RM) -r $(FLEX_GEN) $(BISON_GEN)
+	$(RM) -r $(INCDIR) $(SRCDIR)
 
 pack:
 	zip -r $(DELIVER)_tabla.zip . -i $(TOZIP)
