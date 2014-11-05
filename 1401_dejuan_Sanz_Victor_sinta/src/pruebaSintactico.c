@@ -1,4 +1,5 @@
 #include "y.tab.h"
+#include "lex.yy.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -6,8 +7,6 @@ int main(int argc , char ** argv){
 
 	int aux,line = 1,column = 1;
 
-	extern FILE  * yyout;
-	extern FILE  * yyin;
 
 	if(argc >= 1){
 		yyin = fopen(argv[1],"r");
@@ -20,7 +19,6 @@ int main(int argc , char ** argv){
 		yyout = stdout;
 	}
 
-	return yyparse();
-
+	return	yyparse();
 
 }
