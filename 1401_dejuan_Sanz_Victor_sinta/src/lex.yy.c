@@ -5011,103 +5011,103 @@ YY_RULE_SETUP
 #line 81 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_PUNTOYCOMA;
-}
+ 	return ';';
+ }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 85 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_COMA;
-}
+ 	return ',';
+ }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 89 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_PARENTESISIZQUIERDO;
-}
+ 	return '(';
+ }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 93 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_PARENTESISDERECHO;
-}
+ 	return ')';
+ }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 97 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_CORCHETEIZQUIERDO;
-}
+ 	return '[';
+ }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 101 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_CORCHETEDERECHO;
-}
+ 	return ']';
+ }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 105 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_LLAVEIZQUIERDA;
-}
+ 	return '{';
+ }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 109 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_LLAVEDERECHA;
-}
+ 	return '}';
+ }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 113 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_ASIGNACION;
-}
+ 	return '=';
+ }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 117 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MAS;
-}
+ 	return '+';
+	}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 121 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MENOS;
-}
+ 	return '-';
+  	}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 125 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_DIVISION;
-}
+ 	return '/';
+  	}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 129 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_ASTERISCO;
+ 	return '*';
 }
 	YY_BREAK
 case 29:
@@ -5139,8 +5139,8 @@ YY_RULE_SETUP
 #line 147 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_NOT;
-}
+ 	return '!';
+ }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
@@ -5171,16 +5171,16 @@ YY_RULE_SETUP
 #line 163 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MENOR;
-}
+ 	return '<';
+ }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 167 "alfa.l"
 {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MAYOR;
-}
+ 	return '>';
+ }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP

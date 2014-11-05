@@ -80,55 +80,55 @@ return {
  /** Simbolos */
 ";" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_PUNTOYCOMA;
-}
+ 	return ';';
+ }
 "," {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_COMA;
-}
+ 	return ',';
+ }
 "(" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_PARENTESISIZQUIERDO;
-}
+ 	return '(';
+ }
 ")" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_PARENTESISDERECHO;
-}
+ 	return ')';
+ }
 "[" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_CORCHETEIZQUIERDO;
-}
+ 	return '[';
+ }
 "]" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_CORCHETEDERECHO;
-}
+ 	return ']';
+ }
 "{" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_LLAVEIZQUIERDA;
-}
+ 	return '{';
+ }
 "}" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_LLAVEDERECHA;
-}
+ 	return '}';
+ }
 "=" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_ASIGNACION;
-}
+ 	return '=';
+ }
 "+" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MAS;
-}
+ 	return '+';
+	}
 "-" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MENOS;
-}
+ 	return '-';
+  	}
 "/" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_DIVISION;
-}
+ 	return '/';
+  	}
 "*" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_ASTERISCO;
+ 	return '*';
 }
 "&&" {
 	fprintf(yyout,";D: %s\n",yytext);
@@ -146,8 +146,8 @@ return {
 
 "!" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_NOT;
-}
+ 	return '!';
+ }
 "==" {
 	fprintf(yyout,";D: %s\n",yytext);
  	return TOK_IGUAL;
@@ -162,12 +162,12 @@ return {
 }
 "<" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MENOR;
-}
+ 	return '<';
+ }
 ">" {
 	fprintf(yyout,";D: %s\n",yytext);
- 	return TOK_MAYOR;
-}
+ 	return '>';
+ }
 
 
 "true" {
