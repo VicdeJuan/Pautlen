@@ -1,6 +1,8 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
+	extern FILE * yyout;
+	extern FILE * yyin;
 %}
 
 %token TOK_MAIN
@@ -46,11 +48,13 @@
 %token TOK_ERROR
 %token TOK_ERROR_LONG
 
-%start texto
+%start programa
 
 %%
  
 programa : main TOK_LLAVEIZQUIERDA declaraciones funciones sentencias TOK_LLAVEDERECHA { printf(";R1	<programa> ::= main TOK_LLAVEIZQUIERDA <declaraciones> <funciones> <sentencias> TOK_LLAVEDERECHA\n"); }
+	;
+main:
 	;
 declaraciones : declaracion  { printf(";R2	<declaraciones> ::= <declaracion>\n"); }
 	| declaracion declaraciones  { printf(";R2	<declaraciones> ::= <declaracion> <declaraciones>\n"); }
@@ -73,7 +77,7 @@ identificadores : identificador  { printf(";R18	<identificadores> ::= <identific
 funciones : funcion funciones  { printf(";R20	<funciones> ::= <funcion> <funciones>\n"); }
 	|  { printf(";R20	<funciones> ::= \n"); }
 	;
-funcion : function tipo identificador TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA  { printf(";R20	<funcion> ::= function <tipo> <identificador> TOK_PARENTESISIZQUIERDO <parametros_funcion> TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA\n"); }
+funcion : funcion tipo identificador TOK_PARENTESISIZQUIERDO parametros_funcion TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA  { printf(";R20	<funcion> ::= funcion <tipo> <identificador> TOK_PARENTESISIZQUIERDO <parametros_funcion> TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA\n"); }
 	;
 parametros_funcion : parametro_funcion resto_parametros_funcion  { printf(";R23	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
 	|  { printf(";R23	<parametros_funcion> ::= \n"); }
@@ -100,13 +104,13 @@ sentencia_simple : asignacion  { printf(";R34	<sentencia_simple> ::= <asignacion
 bloque : condicional  { printf(";R40	<bloque> ::= <condicional>\n"); }
 	| bucle  { printf(";R40	<bloque> ::= <bucle>\n"); }
 	;
-asignacion : identificador = exp  { printf(";R43	<asignacion> ::= <identificador> = <exp>\n"); }
-	| elemento_vector = exp { printf(";R43	<asignacion> ::= <elemento_vector> = <exp>\n"); }
+asignacion : identificador TOK_IGUAL exp  { printf(";R43	<asignacion> ::= <identificador> = <exp>\n"); }
+	| elemento_vector TOK_IGUAL exp { printf(";R43	<asignacion> ::= <elemento_vector> = <exp>\n"); }
 	;
 elemento_vector : identificador TOK_CORCHETEIZQUIERDO exp TOK_CORCHETEDERECHO  { printf(";R48	<elemento_vector> ::= <identificador> TOK_CORCHETEIZQUIERDO <exp> TOK_CORCHETEDERECHO\n"); }
 	;
 condicional : TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA  { printf(";R50	<condicional> ::= TOK_IF TOK_PARENTESISIZQUIERDO <exp> TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA <sentencias> TOK_LLAVEDERECHA\n"); }
-	| TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA else TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA  { printf(";R50	<condicional> ::= TOK_IF TOK_PARENTESISIZQUIERDO <exp> TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA <sentencias> TOK_LLAVEDERECHA else TOK_LLAVEIZQUIERDA <sentencias> TOK_LLAVEDERECHA\n"); }
+	| TOK_IF TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA TOK_ELSE TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA  { printf(";R50	<condicional> ::= TOK_IF TOK_PARENTESISIZQUIERDO <exp> TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA <sentencias> TOK_LLAVEDERECHA else TOK_LLAVEIZQUIERDA <sentencias> TOK_LLAVEDERECHA\n"); }
 	;
 bucle : TOK_WHILE TOK_PARENTESISIZQUIERDO exp TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA sentencias TOK_LLAVEDERECHA  { printf(";R52	<bucle> ::= TOK_WHILE TOK_PARENTESISIZQUIERDO <exp> TOK_PARENTESISDERECHO TOK_LLAVEIZQUIERDA <sentencias> TOK_LLAVEDERECHA\n"); }
 	;
@@ -135,9 +139,9 @@ lista_expresiones : exp resto_lista_expresiones  { printf(";R89	<lista_expresion
 	|  { printf(";R89	<lista_expresiones> ::= \n"); }
 	;
 resto_lista_expresiones : TOK_COMA exp resto_lista_expresiones  { printf(";R91	<resto_lista_expresiones> ::= TOK_COMA <exp> <resto_lista_expresiones>\n"); }
-	|  {//vacia} { printf(";R91	<resto_lista_expresiones> ::= {//vacia}\n"); }
+	|  {/*vacia*/} { printf(";R91	<resto_lista_expresiones> ::= {/*vacia*/}\n"); }
 	;
-comparacion : exp == exp  { printf(";R93	<comparacion> ::= <exp> == <exp>\n"); }
+comparacion : exp TOK_IGUAL exp  { printf(";R93	<comparacion> ::= <exp> == <exp>\n"); }
 	| exp TOK_DISTINTO exp  { printf(";R93	<comparacion> ::= <exp> TOK_DISTINTO <exp>\n"); }
 	| exp TOK_MENORIGUAL exp  { printf(";R93	<comparacion> ::= <exp> TOK_MENORIGUAL <exp>\n"); }
 	| exp TOK_MAYORIGUAL exp  { printf(";R93	<comparacion> ::= <exp> TOK_MAYORIGUAL <exp>\n"); }

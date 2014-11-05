@@ -4889,307 +4889,349 @@ case 1:
 YY_RULE_SETUP
 #line 17 "alfa.l"
 {
-	return TOK_LINE_UP;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_LINE_UP;
 
 }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 21 "alfa.l"
+#line 22 "alfa.l"
 {
-	return TOK_JUMP;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_JUMP;
 }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 25 "alfa.l"
+#line 27 "alfa.l"
 {
-	return TOK_COL_UP;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_COL_UP;
 }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 29 "alfa.l"
+#line 32 "alfa.l"
 {
- 	 return TOK_MAIN;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MAIN;
 }
 	YY_BREAK
 /** Palabras reservadas */
 case 5:
 YY_RULE_SETUP
-#line 34 "alfa.l"
+#line 38 "alfa.l"
 {
- 	 return TOK_INT;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_INT;
 }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 37 "alfa.l"
+#line 42 "alfa.l"
 {
- 	 return TOK_BOOLEAN;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_BOOLEAN;
 }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 40 "alfa.l"
+#line 46 "alfa.l"
 {
- 	 return TOK_ARRAY;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_ARRAY;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 43 "alfa.l"
+#line 50 "alfa.l"
 {
- 	 return TOK_FUNCTION;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_FUNCTION;
 }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 46 "alfa.l"
+#line 54 "alfa.l"
 {
- 	 return TOK_IF;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_IF;
 }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 49 "alfa.l"
+#line 58 "alfa.l"
 {
- 	 return TOK_ELSE;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_ELSE;
 }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 52 "alfa.l"
+#line 62 "alfa.l"
 {
- 	 return TOK_WHILE;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_WHILE;
 }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 55 "alfa.l"
+#line 66 "alfa.l"
 {
- 	 return TOK_SCANF;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_SCANF;
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 58 "alfa.l"
+#line 70 "alfa.l"
 {
- 	 return TOK_PRINTF;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_PRINTF;
 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 61 "alfa.l"
+#line 74 "alfa.l"
 {
- 	 return TOK_RETURN;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_RETURN;
 }
 	YY_BREAK
 /** Simbolos */
 case 15:
 YY_RULE_SETUP
-#line 67 "alfa.l"
+#line 81 "alfa.l"
 {
- 	 return TOK_PUNTOYCOMA;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_PUNTOYCOMA;
 }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 70 "alfa.l"
+#line 85 "alfa.l"
 {
- 	 return TOK_COMA;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_COMA;
 }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 73 "alfa.l"
+#line 89 "alfa.l"
 {
- 	 return TOK_PARENTESISIZQUIERDO;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_PARENTESISIZQUIERDO;
 }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 76 "alfa.l"
+#line 93 "alfa.l"
 {
- 	 return TOK_PARENTESISDERECHO;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_PARENTESISDERECHO;
 }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 79 "alfa.l"
+#line 97 "alfa.l"
 {
- 	 return TOK_CORCHETEIZQUIERDO;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_CORCHETEIZQUIERDO;
 }
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 82 "alfa.l"
+#line 101 "alfa.l"
 {
- 	 return TOK_CORCHETEDERECHO;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_CORCHETEDERECHO;
 }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 85 "alfa.l"
+#line 105 "alfa.l"
 {
- 	 return TOK_LLAVEIZQUIERDA;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_LLAVEIZQUIERDA;
 }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 88 "alfa.l"
+#line 109 "alfa.l"
 {
- 	 return TOK_LLAVEDERECHA;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_LLAVEDERECHA;
 }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 91 "alfa.l"
+#line 113 "alfa.l"
 {
- 	 return TOK_ASIGNACION;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_ASIGNACION;
 }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 94 "alfa.l"
+#line 117 "alfa.l"
 {
- 	 return TOK_MAS;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MAS;
 }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 97 "alfa.l"
+#line 121 "alfa.l"
 {
- 	 return TOK_MENOS;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MENOS;
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 100 "alfa.l"
+#line 125 "alfa.l"
 {
- 	 return TOK_DIVISION;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_DIVISION;
 }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 103 "alfa.l"
+#line 129 "alfa.l"
 {
- 	 return TOK_ASTERISCO;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_ASTERISCO;
 }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 106 "alfa.l"
+#line 133 "alfa.l"
 {
- 	 return TOK_AND;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_AND;
 }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 109 "alfa.l"
+#line 137 "alfa.l"
 {
- 	 return TOK_OR;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_OR;
 }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 113 "alfa.l"
+#line 142 "alfa.l"
 {
- 	 return TOK_DISTINTO;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_DISTINTO;
 }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 117 "alfa.l"
+#line 147 "alfa.l"
 {
- 	 return TOK_NOT;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_NOT;
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 120 "alfa.l"
+#line 151 "alfa.l"
 {
- 	 return TOK_IGUAL;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_IGUAL;
 }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 123 "alfa.l"
+#line 155 "alfa.l"
 {
- 	 return TOK_MENORIGUAL;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MENORIGUAL;
 }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 126 "alfa.l"
+#line 159 "alfa.l"
 {
- 	 return TOK_MAYORIGUAL;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MAYORIGUAL;
 }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 129 "alfa.l"
+#line 163 "alfa.l"
 {
- 	 return TOK_MENOR;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MENOR;
 }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 132 "alfa.l"
+#line 167 "alfa.l"
 {
- 	 return TOK_MAYOR;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_MAYOR;
 }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 137 "alfa.l"
+#line 173 "alfa.l"
 {
- 	 return TOK_TRUE;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_TRUE;
 }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 140 "alfa.l"
+#line 177 "alfa.l"
 {
- 	 return TOK_FALSE;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_FALSE;
 }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 144 "alfa.l"
+#line 182 "alfa.l"
 {
- 	 return TOK_CONSTANTE_ENTERA;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_CONSTANTE_ENTERA;
 }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 148 "alfa.l"
+#line 187 "alfa.l"
 {
- 	 return TOK_ERROR_LONG;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_ERROR_LONG;
 }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 152 "alfa.l"
+#line 192 "alfa.l"
 {
- 	 return TOK_IDENTIFICADOR;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_IDENTIFICADOR;
 }
 	YY_BREAK
 /** Errores */
 case 42:
 YY_RULE_SETUP
-#line 158 "alfa.l"
+#line 199 "alfa.l"
 {
- 	 return TOK_ERROR;
+	fprintf(yyout,";D: %s",yytext);
+ 	return TOK_ERROR;
 }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 163 "alfa.l"
+#line 205 "alfa.l"
 ECHO;
 	YY_BREAK
-#line 5193 "lex.yy.c"
+#line 5235 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -6187,210 +6229,8 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 163 "alfa.l"
+#line 205 "alfa.l"
 
 
 
-int print_all(int aux,int * line, int * column);
 
-
-
-int main(int argc , char ** argv){
-
-	int aux,line = 1,column = 1;
-
-	if(argc >= 1){
-		yyin = fopen(argv[1],"r");
-	}
-	else return 0;
-
-	if(argc >= 2){
-		yyout = fopen(argv[2],"w");
-	}else{
-		yyout = stdout;
-	}
-
-	if (yyin != NULL)
-	{
-		aux = yylex();
-		while (aux != 0)
-		{
-			print_all(aux,&line,&column);		
-			aux = yylex();
-			
-		}
-	}
-	return 0;
-}
-
-int print_all(int aux,int * line, int * column){
-	switch (aux){
-			case TOK_LINE_UP:
-				break;
-			case TOK_COL_UP:
-				*column+=1;
-				break;
-			case TOK_MAIN:
-				fprintf(yyout,TOK_MAIN_STR,TOK_MAIN,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_INT:
-				fprintf(yyout,TOK_INT_STR,TOK_INT,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_BOOLEAN:
-				fprintf(yyout,TOK_BOOLEAN_STR,TOK_BOOLEAN,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_ARRAY:
-				fprintf(yyout,TOK_ARRAY_STR,TOK_ARRAY,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_FUNCTION:
-				fprintf(yyout,TOK_FUNCTION_STR,TOK_FUNCTION,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_IF:
-				fprintf(yyout,TOK_IF_STR,TOK_IF,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_ELSE:
-				fprintf(yyout,TOK_ELSE_STR,TOK_ELSE,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_WHILE:
-				fprintf(yyout,TOK_WHILE_STR,TOK_WHILE,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_SCANF:
-				fprintf(yyout,TOK_SCANF_STR,TOK_SCANF,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_PRINTF:
-				fprintf(yyout,TOK_PRINTF_STR,TOK_PRINTF,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_RETURN:
-				fprintf(yyout,TOK_RETURN_STR,TOK_RETURN,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_PUNTOYCOMA:
-				fprintf(yyout,TOK_PUNTOYCOMA_STR,TOK_PUNTOYCOMA,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_COMA:
-				fprintf(yyout,TOK_COMA_STR,TOK_COMA,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_PARENTESISIZQUIERDO:
-				fprintf(yyout,TOK_PARENTESISIZQUIERDO_STR,TOK_PARENTESISIZQUIERDO,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_PARENTESISDERECHO:
-				fprintf(yyout,TOK_PARENTESISDERECHO_STR,TOK_PARENTESISDERECHO,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_CORCHETEIZQUIERDO:
-				fprintf(yyout,TOK_CORCHETEIZQUIERDO_STR,TOK_CORCHETEIZQUIERDO,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_CORCHETEDERECHO:
-				fprintf(yyout,TOK_CORCHETEDERECHO_STR,TOK_CORCHETEDERECHO,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_LLAVEIZQUIERDA:
-				fprintf(yyout,TOK_LLAVEIZQUIERDA_STR,TOK_LLAVEIZQUIERDA,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_LLAVEDERECHA:
-				fprintf(yyout,TOK_LLAVEDERECHA_STR,TOK_LLAVEDERECHA,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_ASIGNACION:
-				fprintf(yyout,TOK_ASIGNACION_STR,TOK_ASIGNACION,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_MAS:
-				fprintf(yyout,TOK_MAS_STR,TOK_MAS,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_MENOS:
-				fprintf(yyout,TOK_MENOS_STR,TOK_MENOS,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_DIVISION:
-				fprintf(yyout,TOK_DIVISION_STR,TOK_DIVISION,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_ASTERISCO:
-				fprintf(yyout,TOK_ASTERISCO_STR,TOK_ASTERISCO,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_AND:
-				fprintf(yyout,TOK_AND_STR,TOK_AND,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_OR:
-				fprintf(yyout,TOK_OR_STR,TOK_OR,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_NOT:
-				fprintf(yyout,TOK_NOT_STR,TOK_NOT,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_IGUAL:
-				fprintf(yyout,TOK_IGUAL_STR,TOK_IGUAL,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_DISTINTO:
-				fprintf(yyout,TOK_DISTINTO_STR,TOK_DISTINTO,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_MENORIGUAL:
-				fprintf(yyout,TOK_MENORIGUAL_STR,TOK_MENORIGUAL,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_MAYORIGUAL:
-				fprintf(yyout,TOK_MAYORIGUAL_STR,TOK_MAYORIGUAL,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_MENOR:
-				fprintf(yyout,TOK_MENOR_STR,TOK_MENOR,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_MAYOR:
-				fprintf(yyout,TOK_MAYOR_STR,TOK_MAYOR,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_IDENTIFICADOR:
-				fprintf(yyout,TOK_IDENTIFICADOR_STR,TOK_IDENTIFICADOR,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_CONSTANTE_ENTERA:
-				fprintf(yyout,TOK_CONSTANTE_ENTERA_STR,TOK_CONSTANTE_ENTERA,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_TRUE:
-				fprintf(yyout,TOK_TRUE_STR,TOK_TRUE,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_FALSE:
-				fprintf(yyout,TOK_FALSE_STR,TOK_FALSE,yytext);
-				*column += strlen(yytext);
-			break;
-			case TOK_JUMP:
-				*line +=1;
-				*column = 1;
-			break;
-			case TOK_ERROR_LONG:
-				fprintf(yyout,"****Error en [lin %d, col %d]: identificador demasiado largo (%s)\n",*line,*column,yytext);
-				*column += strlen(yytext);
-				fprintf(yyout,TOK_ERROR_STR,TOK_ERROR,yytext);
-			break;	
-			default:
-				fprintf(yyout,"****Error en [lin %d, col %d]: simbolo no permitido (%s)\n",*line,*column,yytext);
-				*column += strlen(yytext);
-				fprintf(yyout,TOK_ERROR_STR,TOK_ERROR,yytext);
-		}
-		return 0;
-}

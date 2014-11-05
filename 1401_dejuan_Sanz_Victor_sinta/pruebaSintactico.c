@@ -1,4 +1,6 @@
 #include "y.tab.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 int main(int argc , char ** argv){
 
@@ -18,6 +20,7 @@ int main(int argc , char ** argv){
 		yyout = stdout;
 	}
 
-	
+	return yyparse();
+
 
 }
