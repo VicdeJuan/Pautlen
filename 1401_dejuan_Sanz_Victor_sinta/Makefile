@@ -28,7 +28,7 @@ mkdirs:
 	@mkdir -p src
 
 src/y.tab.c: alfa.y
-	@bison -yv -Wnone --defines=includes/y.tab.h -o src/y.tab.c alfa.y
+	@bison -yv --defines=includes/y.tab.h -o src/y.tab.c alfa.y
 
 src/lex.yy.c: alfa.l
 	@flex --header-file=includes/lex.yy.h -o src/lex.yy.c alfa.l 
@@ -36,12 +36,18 @@ src/lex.yy.c: alfa.l
 $(EXECUTABLE): src/y.tab.c src/lex.yy.c
 	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $^ pruebaSintactico.c
 
+BISON: 
+	@bison -yv  --report=state --defines=includes/y.tab.h -o src/y.tab.c alfa.y
+
+FLEX:
+	@flex --header-file=includes/lex.yy.h -o src/lex.yy.c alfa.l 
+
 
 final: all clean pack
 
 clean:
 	$(RM) *~ $(EXECUTABLE)
-	$(RM) -r $(INCDIR) $(SRCDIR)
+	$(RM) -r $(INCDIR)/* $(SRCDIR)/*
 
 pack:
 	zip -r $(DELIVER)_tabla.zip . -i $(TOZIP)

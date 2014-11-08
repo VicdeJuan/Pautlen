@@ -3,9 +3,11 @@
 	#include <stdlib.h>
 	#include "lex.yy.h"
 
-void yyerror(char* s){
+extern int column,line,error;
 
-	fprintf(yyout,"\n");
+void yyerror(char* s){
+	if (error == 0)
+		printf("****Error sintáctico en [lin %d, col %d]\n",line,column); 
 	return;
 }
 
@@ -37,6 +39,18 @@ void yyerror(char* s){
 %token TOK_COL_UP
 %token TOK_ERROR
 %token TOK_ERROR_LONG
+
+%left minima
+
+%left '+' '-' TOK_OR
+%left '*' '/' TOK_AND
+
+%right TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL
+%right '!' 
+
+%right '('
+%left ')'
+
 
 %start programa
 
@@ -78,7 +92,7 @@ resto_parametros_funcion : ';' parametro_funcion resto_parametros_funcion  { fpr
 parametro_funcion : tipo identificador  { fprintf(yyout,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); }
 	;
 declaraciones_funcion : declaraciones  { fprintf(yyout,";R28:	<declaraciones_funcion> ::= <declaraciones>\n"); }
-	|  { fprintf(yyout,";R28:	<declaraciones_funcion> ::= \n"); }
+	|  { fprintf(yyout,";R29:	<declaraciones_funcion> ::= \n"); }
 	;
 sentencias : sentencia  { fprintf(yyout,";R30:	<sentencias> ::= <sentencia>\n"); }
 	| sentencia sentencias  { fprintf(yyout,";R31:	<sentencias> ::= <sentencia> <sentencias>\n"); }
@@ -118,10 +132,10 @@ exp : exp '+' exp  { fprintf(yyout,";R72:	<exp> ::= <exp> + <exp>\n"); }
 	| exp TOK_AND exp  { fprintf(yyout,";R77:	<exp> ::= <exp> TOK_AND <exp>\n"); }
 	| exp TOK_OR exp  { fprintf(yyout,";R78:	<exp> ::= <exp> TOK_OR <exp>\n"); }
 	| '!' exp  { fprintf(yyout,";R79:	<exp> ::= ! <exp>\n"); }
-	| identificador  { fprintf(yyout,";R80:	<exp> ::= <identificador>\n"); }
-	| constante  { fprintf(yyout,";R81:	<exp> ::= <constante>\n"); }
 	| '(' exp ')'  { fprintf(yyout,";R82:	<exp> ::= ( <exp> )\n"); }
 	| '(' comparacion ')' { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
+	| identificador  { fprintf(yyout,";R80:	<exp> ::= <identificador>\n"); }
+	| constante  { fprintf(yyout,";R81:	<exp> ::= <constante>\n"); }
 	| elemento_vector  { fprintf(yyout,";R85:	<exp> ::= <elemento_vector>\n"); }
 	| identificador '(' lista_expresiones ')'  { fprintf(yyout,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); }
 	;
@@ -149,6 +163,7 @@ constante_entera : TOK_CONSTANTE_ENTERA { fprintf(yyout,";R104:	<constante_enter
 identificador : TOK_IDENTIFICADOR { fprintf(yyout,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n"); }
 	; 
 
-
+funcion : TOK_FUNCTION 
+	;
 %%
 
