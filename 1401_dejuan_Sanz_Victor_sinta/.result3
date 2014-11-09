@@ -31,6 +31,7 @@
 ;R2:	<declaraciones> ::= <declaracion>
 ;R3:	<declaraciones> ::= <declaracion> <declaraciones>
 ;R3:	<declaraciones> ::= <declaracion> <declaraciones>
+;R28:	<declaraciones_funcion> ::= <declaraciones>
 ;R21:	<funciones> ::= 
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR
 ;D:	=

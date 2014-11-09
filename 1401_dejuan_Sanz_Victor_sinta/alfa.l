@@ -20,7 +20,6 @@ int error = 0;
 
 "//".* {
 	column = 0;
-	line +=1;
 
 }
 
@@ -35,12 +34,12 @@ int error = 0;
 [ \t] {
 	column +=1;
 }
-" " {
-	column +=1;
-}
+
+
 
 main {
 	fprintf(yyout,";D:	%s\n",yytext);
+ 	column += strlen(yytext);
  	return TOK_MAIN;
 }
 
@@ -246,6 +245,7 @@ return {
 
 . {
 	fprintf(yyout,";D:	%s\n",yytext);
+ 	column += strlen(yytext);
 	fprintf(stdout,"****Error en [lin %d, col %d]: simbolo no permitido (%s)\n",line,column,yytext);
  	error = 1;
  	return TOK_ERROR;

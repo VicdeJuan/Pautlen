@@ -15,6 +15,7 @@
 ;R4:	<declaracion> ::= <clase> <identificadores> ;
 ;D:	scanf
 ;R2:	<declaraciones> ::= <declaracion>
+;R28:	<declaraciones_funcion> ::= <declaraciones>
 ;R21:	<funciones> ::= 
 ;D:	x
 ;R108:	<identificador> ::= TOK_IDENTIFICADOR

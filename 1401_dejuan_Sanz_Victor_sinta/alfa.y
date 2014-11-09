@@ -56,7 +56,8 @@ void yyerror(char* s){
 
 %%
  
-programa : main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+programa : main '{' declaraciones_funcion funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+		   //Esto es lo que viene, pero esta mal: main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 	;
 main: TOK_MAIN
 	;
@@ -113,8 +114,8 @@ asignacion : identificador '=' exp  { fprintf(yyout,";R43:	<asignacion> ::= <ide
 	;
 elemento_vector : identificador '[' exp ']'  { fprintf(yyout,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
 	;
-condicional : TOK_IF '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> }\n"); }
-	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> '}' else { <sentencias> }\n"); }
+condicional : TOK_IF  exp '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> }\n"); }
+	| TOK_IF exp  '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> '}' else { <sentencias> }\n"); }
 	;
 bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R52:	<bucle> ::= TOK_WHILE ( <exp> ) { <sentencias> }\n"); }
 	;
@@ -133,7 +134,9 @@ exp : exp '+' exp  { fprintf(yyout,";R72:	<exp> ::= <exp> + <exp>\n"); }
 	| exp TOK_OR exp  { fprintf(yyout,";R78:	<exp> ::= <exp> TOK_OR <exp>\n"); }
 	| '!' exp  { fprintf(yyout,";R79:	<exp> ::= ! <exp>\n"); }
 	| '(' exp ')'  { fprintf(yyout,";R82:	<exp> ::= ( <exp> )\n"); }
-	| '(' comparacion ')' { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
+	// Es el que viene pero está mal, aunque si quitamos lo parentesis hay demasiados conflictos shift/reduce
+	| '(' comparacion ')'  { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
+	//| comparacion  { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
 	| identificador  { fprintf(yyout,";R80:	<exp> ::= <identificador>\n"); }
 	| constante  { fprintf(yyout,";R81:	<exp> ::= <constante>\n"); }
 	| elemento_vector  { fprintf(yyout,";R85:	<exp> ::= <elemento_vector>\n"); }
