@@ -42,8 +42,9 @@ void yyerror(char* s){
 
 %left minima
 
-%left '+' '-' TOK_OR
-%left '*' '/' TOK_AND
+%left TOK_OR TOK_AND 
+%left '+' '-' 
+%left '*' '/' 
 
 %right TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL
 %right '!' 
@@ -56,7 +57,7 @@ void yyerror(char* s){
 
 %%
  
-programa : main '{' declaraciones_funcion funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+programa : main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 		   //Esto es lo que viene, pero esta mal: main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 	;
 main: TOK_MAIN
@@ -82,7 +83,7 @@ identificadores : identificador  { fprintf(yyout,";R18:	<identificadores> ::= <i
 funciones : funcion funciones  { fprintf(yyout,";R20:	<funciones> ::= <funcion> <funciones>\n"); }
 	|  { fprintf(yyout,";R21:	<funciones> ::= \n"); }
 	;
-funcion : funcion tipo identificador '(' parametros_funcion ')' '{'  { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) {\n"); }
+funcion : funcion tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) {\n"); }
 	;
 parametros_funcion : parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
 	|  { fprintf(yyout,";R24:	<parametros_funcion> ::= \n"); }
@@ -114,8 +115,8 @@ asignacion : identificador '=' exp  { fprintf(yyout,";R43:	<asignacion> ::= <ide
 	;
 elemento_vector : identificador '[' exp ']'  { fprintf(yyout,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
 	;
-condicional : TOK_IF  exp '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> }\n"); }
-	| TOK_IF exp  '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> '}' else { <sentencias> }\n"); }
+condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> }\n"); }
+	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> '}' else { <sentencias> }\n"); }
 	;
 bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R52:	<bucle> ::= TOK_WHILE ( <exp> ) { <sentencias> }\n"); }
 	;

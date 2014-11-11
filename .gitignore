@@ -8,3 +8,4 @@ y.tab.*
 *.output
 lex.yy.*
 prueba*
+.*
