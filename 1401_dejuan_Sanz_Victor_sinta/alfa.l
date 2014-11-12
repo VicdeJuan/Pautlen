@@ -59,7 +59,7 @@ array {
  	column += strlen(yytext);
  	return TOK_ARRAY;
 }
-function {
+"function" {
 	fprintf(yyout,";D:	%s\n",yytext);
  	column += strlen(yytext);
  	return TOK_FUNCTION;

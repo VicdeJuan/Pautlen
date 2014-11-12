@@ -42,15 +42,14 @@ void yyerror(char* s){
 
 %left minima
 
+%left TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL
 %left TOK_OR TOK_AND 
 %left '+' '-' 
 %left '*' '/' 
 
-%right TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL
-%right '!' 
 
-%right '('
-%left ')'
+
+%right '!' 
 
 
 %start programa
