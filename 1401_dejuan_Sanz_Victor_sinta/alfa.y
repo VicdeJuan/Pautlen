@@ -57,7 +57,6 @@ void yyerror(char* s){
 %%
  
 programa : main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
-		   //Esto es lo que viene, pero esta mal: main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 	;
 main: TOK_MAIN
 	;
