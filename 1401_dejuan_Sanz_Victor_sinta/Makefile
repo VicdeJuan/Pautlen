@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -ggdb
+CFLAGS = -ggdb -D_GNU_SOURCE
 INCFLAG = -I./includes
 
 SRCDIR = src

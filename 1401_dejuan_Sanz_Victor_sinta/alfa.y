@@ -2,12 +2,13 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "lex.yy.h"
-
 extern int column,line,error;
+#define ERROR_IFACE_SINTA stderr
+
 
 void yyerror(char* s){
 	if (error == 0)
-		printf("****Error sintáctico en [lin %d, col %d]\n",line,column); 
+		fprintf(ERROR_IFACE_SINTA,"****Error sintáctico en [lin %d, col %d]\n",line,column); 
 	return;
 }
 
@@ -40,10 +41,9 @@ void yyerror(char* s){
 %token TOK_ERROR
 %token TOK_ERROR_LONG
 
-%left minima
 
+%right TOK_OR TOK_AND 
 %left TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL
-%left TOK_OR TOK_AND 
 %left '+' '-' 
 %left '*' '/' 
 
@@ -133,9 +133,7 @@ exp : exp '+' exp  { fprintf(yyout,";R72:	<exp> ::= <exp> + <exp>\n"); }
 	| exp TOK_OR exp  { fprintf(yyout,";R78:	<exp> ::= <exp> TOK_OR <exp>\n"); }
 	| '!' exp  { fprintf(yyout,";R79:	<exp> ::= ! <exp>\n"); }
 	| '(' exp ')'  { fprintf(yyout,";R82:	<exp> ::= ( <exp> )\n"); }
-	// Es el que viene pero está mal, aunque si quitamos lo parentesis hay demasiados conflictos shift/reduce
 	| '(' comparacion ')'  { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
-	//| comparacion  { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
 	| identificador  { fprintf(yyout,";R80:	<exp> ::= <identificador>\n"); }
 	| constante  { fprintf(yyout,";R81:	<exp> ::= <constante>\n"); }
 	| elemento_vector  { fprintf(yyout,";R85:	<exp> ::= <elemento_vector>\n"); }

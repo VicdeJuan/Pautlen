@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "y.tab.h"
+#define ERROR_IFACE_MORFO stderr
 
 int column = 0;
 int line = 1;
@@ -230,7 +231,7 @@ return {
 
 [a-zA-Z]+[a-zA-Z0-9]{100,} {
 	fprintf(yyout,";D:	%s\n",yytext);
-	fprintf(stdout,"****Error en [lin %d, col %d]: identificador demasiado largo (%s)\n",line,column,yytext);
+	fprintf(ERROR_IFACE_MORFO,"****Error en [lin %d, col %d]: identificador demasiado largo (%s)\n",line,column,yytext);
  	error = 1;
  	return TOK_ERROR_LONG;
 }
@@ -246,7 +247,7 @@ return {
 . {
 	fprintf(yyout,";D:	%s\n",yytext);
  	column += strlen(yytext);
-	fprintf(stdout,"****Error en [lin %d, col %d]: simbolo no permitido (%s)\n",line,column,yytext);
+	fprintf(ERROR_IFACE_MORFO,"****Error en [lin %d, col %d]: simbolo no permitido (%s)\n",line,column,yytext);
  	error = 1;
  	return TOK_ERROR;
 }
