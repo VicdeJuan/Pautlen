@@ -42,13 +42,12 @@ void yyerror(char* s){
 %token TOK_ERROR_LONG
 
 
-%right TOK_OR TOK_AND 
-%left TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL
+%right '='
+%left TOK_OR 
+%left TOK_AND 
+%left TOK_IGUAL TOK_MENORIGUAL TOK_MAYORIGUAL '<' '>'
 %left '+' '-' 
 %left '*' '/' 
-
-
-
 %right '!' 
 
 
