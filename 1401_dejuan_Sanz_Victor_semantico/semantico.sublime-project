@@ -2,8 +2,17 @@
 	"folders":
 	[
 		{
-			"follow_symlinks": true,
-			"path": "Documents/Carrera/Cuarto/1_Semestre/Pautlen/1401_dejuan_Sanz_Victor_semantico"
+			"path": "./",
+			"folder_exclude_patterns": [ "bin", "obj" ]
 		}
-	]
+	],	
+	"settings":
+	{
+		"sublimeclang_options":
+		[
+			"-I${folder:${project_path:semantico.sublime-project}}/includes",
+			"-Wall",
+			"-Pedantic"
+		]
+	}
 }

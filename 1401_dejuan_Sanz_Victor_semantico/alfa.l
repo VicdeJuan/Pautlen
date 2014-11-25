@@ -4,9 +4,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "symbol_table.h"
 #include "y.tab.h"
-#define ERROR_IFACE_MORFO stderr
 
 int column = 0;
 int line = 1;
@@ -20,13 +19,13 @@ int error = 0;
 
 
 "//".* {
-	column = 0;
 
 }
 
 \r {
 
 }
+
 \n {
 	column = 0;
 	line +=1;
@@ -226,6 +225,7 @@ return {
 [0-9]+ {
 	fprintf(yyout,";D:	%s\n",yytext);
  	column += strlen(yytext);
+	yylval.atributo.valor_entero = atoi(yytext);
  	return TOK_CONSTANTE_ENTERA;
 }
 
@@ -239,6 +239,8 @@ return {
 [a-zA-Z]+[a-zA-Z0-9]{0,100} {
 	fprintf(yyout,";D:	%s\n",yytext);
  	column += strlen(yytext);
+	yylval.atributo.valor_entero;
+ 	strcpy(yylval.atributo.lexema,yytext);
  	return TOK_IDENTIFICADOR;
 }
 

@@ -1,12 +1,11 @@
 #ifndef simbolo_H
 #define simbolo_H
 
-#include "errors.h"
+#include "alfa.h"
 
-#define MAX_LEN_SYMBOL 101
 
 typedef struct {
-	char  key[MAX_LEN_SYMBOL];
+	char  key[MAX_LONG_ID+1];
 	short symbol_type; /* VARIABLE or PARAMETER or FUNCTION */
 	short data_type; /* INT or BOOLEAN*/
 	short variable_type; /* ESCALAR or VECTOR */

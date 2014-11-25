@@ -2,9 +2,8 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "lex.yy.h"
-	#include "symbol.h"
+	#include "symbol_table.h"
 extern int column,line,error;
-#define ERROR_IFACE_SINTA stderr
 
 
 void yyerror(char* s){
@@ -17,71 +16,70 @@ void yyerror(char* s){
 
 
 %union{
-	symbol atributo;
+	tipo_atributo atributo;
 }
 
 
-%token TOK_MAIN
-%token TOK_INT
-%token TOK_BOOLEAN
-%token TOK_ARRAY
-%token TOK_FUNCTION
-%token TOK_IF
-%token TOK_ELSE
-%token TOK_WHILE
-%token TOK_SCANF
-%token TOK_PRINTF
-%token TOK_RETURN
-%token TOK_AND
-%token TOK_OR
-%token TOK_IGUAL
-%token TOK_DISTINTO
-%token TOK_MENORIGUAL
-%token TOK_MAYORIGUAL
-%token TOK_IDENTIFICADOR
-%token TOK_CONSTANTE_ENTERA
-%token TOK_TRUE
-%token TOK_FALSE
-%token TOK_JUMP
-%token TOK_LINE_UP
-%token TOK_COL_UP
-%token TOK_ERROR
-%token TOK_ERROR_LONG
+%token <atributo> TOK_MAIN
+%token <atributo> TOK_INT
+%token <atributo> TOK_BOOLEAN
+%token <atributo> TOK_ARRAY
+%token <atributo> TOK_FUNCTION
+%token <atributo> TOK_IF
+%token <atributo> TOK_ELSE
+%token <atributo> TOK_WHILE
+%token <atributo> TOK_SCANF
+%token <atributo> TOK_PRINTF
+%token <atributo> TOK_RETURN
+%token <atributo> TOK_AND
+%token <atributo> TOK_OR
+%token <atributo> TOK_IGUAL
+%token <atributo> TOK_DISTINTO
+%token <atributo> TOK_MENORIGUAL
+%token <atributo> TOK_MAYORIGUAL
+%token <atributo> TOK_IDENTIFICADOR
+%token <atributo> TOK_CONSTANTE_ENTERA
+%token <atributo> TOK_TRUE
+%token <atributo> TOK_FALSE
+%token <atributo> TOK_JUMP
+%token <atributo> TOK_LINE_UP
+%token <atributo> TOK_COL_UP
+%token <atributo> TOK_ERROR
+%token <atributo> TOK_ERROR_LONG
 
-%type programa
-%type declaraciones
-%type declaracion
-%type clase
-%type clase_escalar
-%type tipo
-%type clase_vector
-%type identificadores
-%type funciones
-%type funcion
-%type parametros_funcion
-%type resto_parametros_funcion
-%type parametro_funcion
-%type declaraciones_funcion
-%type sentencias
-%type sentencia
-%type sentencia_simple
-%type bloque
-%type asignacion
-%type elemento_vector
-%type condicional
-%type bucle
-%type lectura
-%type escritura
-%type retorno_funcion
-%type exp
-%type lista_expresiones
-%type resto_lista_expresiones
-%type comparacion
-%type constante
-%type constante_logica
-%type constante_entera
-%type identificador
-%type funcion
+%type <atributo> programa
+%type <atributo> declaraciones
+%type <atributo> declaracion
+%type <atributo> clase
+%type <atributo> clase_escalar
+%type <atributo> tipo
+%type <atributo> clase_vector
+%type <atributo> identificadores
+%type <atributo> funciones
+%type <atributo> parametros_funcion
+%type <atributo> resto_parametros_funcion
+%type <atributo> parametro_funcion
+%type <atributo> declaraciones_funcion
+%type <atributo> sentencias
+%type <atributo> sentencia
+%type <atributo> sentencia_simple
+%type <atributo> bloque
+%type <atributo> asignacion
+%type <atributo> elemento_vector
+%type <atributo> condicional
+%type <atributo> bucle
+%type <atributo> lectura
+%type <atributo> escritura
+%type <atributo> retorno_funcion
+%type <atributo> exp
+%type <atributo> lista_expresiones
+%type <atributo> resto_lista_expresiones
+%type <atributo> comparacion
+%type <atributo> constante
+%type <atributo> constante_logica
+%type <atributo> constante_entera
+%type <atributo> identificador
+%type <atributo> funcion
 
 
 %right '='
@@ -96,8 +94,7 @@ void yyerror(char* s){
 %start programa
 
 %%
- 
-programa : main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+ programa : main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 	;
 main: TOK_MAIN
 	;
@@ -112,9 +109,9 @@ clase : clase_escalar  { fprintf(yyout,";R5:	<clase> ::= <clase_escalar>\n"); }
 clase_escalar : tipo  { fprintf(yyout,";R9:	<clase_escalar> ::= <tipo>\n"); }
 	;
 tipo : TOK_INT  { fprintf(yyout,";R10:	<tipo> ::= int\n"); }
-	| TOK_BOOLEAN { fprintf(yyout,";R11:	<tipo> ::= TOK_BOOLEAN\n"); }
+	| TOK_BOOLEAN { fprintf(yyout,";R11:	<tipo> ::= boolean\n"); }
 	;
-clase_vector : TOK_ARRAY tipo '[' constante_entera  ']' { fprintf(yyout,";R15:	<clase_vector> ::= TOK_ARRAY <tipo> [ <constante_entera>  ]\n"); }
+clase_vector : TOK_ARRAY tipo '[' constante_entera  ']' { fprintf(yyout,";R15:	<clase_vector> ::= array <tipo> [ <constante_entera>  ]\n"); }
 	;
 identificadores : identificador  { fprintf(yyout,";R18:	<identificadores> ::= <identificador>\n"); }
 	| identificador ',' identificadores  { fprintf(yyout,";R19:	<identificadores> ::= <identificador> , <identificadores>\n"); }
@@ -122,12 +119,12 @@ identificadores : identificador  { fprintf(yyout,";R18:	<identificadores> ::= <i
 funciones : funcion funciones  { fprintf(yyout,";R20:	<funciones> ::= <funcion> <funciones>\n"); }
 	|  { fprintf(yyout,";R21:	<funciones> ::= \n"); }
 	;
-funcion : funcion tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) {\n"); }
+funcion : TOK_FUNCTION tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }  \n"); }
 	;
 parametros_funcion : parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
 	|  { fprintf(yyout,";R24:	<parametros_funcion> ::= \n"); }
 	;
-resto_parametros_funcion : ';' parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R25:	<resto_parametros_funcion> ::= ;' <parametro_funcion> <resto_parametros_funcion>\n"); }
+resto_parametros_funcion : ';' parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R25:	<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n"); }
 	|  { fprintf(yyout,";R25:	<resto_parametros_funcion> ::= \n"); }
 	;
 parametro_funcion : tipo identificador  { fprintf(yyout,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); }
@@ -154,24 +151,24 @@ asignacion : identificador '=' exp  { fprintf(yyout,";R43:	<asignacion> ::= <ide
 	;
 elemento_vector : identificador '[' exp ']'  { fprintf(yyout,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
 	;
-condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> }\n"); }
-	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> '}' else { <sentencias> }\n"); }
+condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); }
+	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
 	;
-bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R52:	<bucle> ::= TOK_WHILE ( <exp> ) { <sentencias> }\n"); }
+bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
 	;
 lectura : TOK_SCANF identificador  { fprintf(yyout,";R54:	<lectura> ::= scanf <identificador>\n"); }
 	;
 escritura : TOK_PRINTF exp { fprintf(yyout,";R56:	<escritura> ::= printf <exp>\n"); }
 	;
-retorno_funcion : TOK_RETURN exp  { fprintf(yyout,";R61:	<retorno_funcion> ::= TOK_RETURN <exp>\n"); }
+retorno_funcion : TOK_RETURN exp  { fprintf(yyout,";R61:	<retorno_funcion> ::= return <exp>\n"); }
 	;
 exp : exp '+' exp  { fprintf(yyout,";R72:	<exp> ::= <exp> + <exp>\n"); }
 	| exp '-' exp  { fprintf(yyout,";R73:	<exp> ::= <exp> - <exp>\n"); }
 	| exp '/' exp  { fprintf(yyout,";R74:	<exp> ::= <exp> / <exp>\n"); }
 	| exp '*' exp  { fprintf(yyout,";R75:	<exp> ::= <exp> * <exp>\n"); }
 	| '-' exp  { fprintf(yyout,";R76:	<exp> ::= - <exp>\n"); }
-	| exp TOK_AND exp  { fprintf(yyout,";R77:	<exp> ::= <exp> TOK_AND <exp>\n"); }
-	| exp TOK_OR exp  { fprintf(yyout,";R78:	<exp> ::= <exp> TOK_OR <exp>\n"); }
+	| exp TOK_AND exp  { fprintf(yyout,";R77:	<exp> ::= <exp> && <exp>\n"); }
+	| exp TOK_OR exp  { fprintf(yyout,";R78:	<exp> ::= <exp> || <exp>\n"); }
 	| '!' exp  { fprintf(yyout,";R79:	<exp> ::= ! <exp>\n"); }
 	| '(' exp ')'  { fprintf(yyout,";R82:	<exp> ::= ( <exp> )\n"); }
 	| '(' comparacion ')'  { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
@@ -184,12 +181,12 @@ lista_expresiones : exp resto_lista_expresiones  { fprintf(yyout,";R89:	<lista_e
 	|  { fprintf(yyout,";R90:	<lista_expresiones> ::= \n"); }
 	;
 resto_lista_expresiones : ',' exp resto_lista_expresiones  { fprintf(yyout,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
-	|  {/*vacia*/} { fprintf(yyout,";R91:	<resto_lista_expresiones> ::= {/*vacia*/}\n"); }
+	|  {/*vacia*/} { fprintf(yyout,";R91:	<resto_lista_expresiones> ::= \n"); }
 	;
 comparacion : exp TOK_IGUAL exp  { fprintf(yyout,";R93:	<comparacion> ::= <exp> == <exp>\n"); }
-	| exp TOK_DISTINTO exp  { fprintf(yyout,";R94:	<comparacion> ::= <exp> TOK_DISTINTO <exp>\n"); }
-	| exp TOK_MENORIGUAL exp  { fprintf(yyout,";R95:	<comparacion> ::= <exp> TOK_MENORIGUAL <exp>\n"); }
-	| exp TOK_MAYORIGUAL exp  { fprintf(yyout,";R96:	<comparacion> ::= <exp> TOK_MAYORIGUAL <exp>\n"); }
+	| exp TOK_DISTINTO exp  { fprintf(yyout,";R94:	<comparacion> ::= <exp> != <exp>\n"); }
+	| exp TOK_MENORIGUAL exp  { fprintf(yyout,";R95:	<comparacion> ::= <exp> <= <exp>\n"); }
+	| exp TOK_MAYORIGUAL exp  { fprintf(yyout,";R96:	<comparacion> ::= <exp> >= <exp>\n"); }
 	| exp '<' exp  { fprintf(yyout,";R97:	<comparacion> ::= <exp> < <exp>\n"); }
 	| exp '>' exp  { fprintf(yyout,";R98:	<comparacion> ::= <exp> > <exp>\n"); }
 	;
@@ -204,7 +201,4 @@ constante_entera : TOK_CONSTANTE_ENTERA { fprintf(yyout,";R104:	<constante_enter
 identificador : TOK_IDENTIFICADOR { fprintf(yyout,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n"); }
 	; 
 
-funcion : TOK_FUNCTION 
-	;
 %%
-

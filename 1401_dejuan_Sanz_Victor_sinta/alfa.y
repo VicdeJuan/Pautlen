@@ -80,7 +80,7 @@ identificadores : identificador  { fprintf(yyout,";R18:	<identificadores> ::= <i
 funciones : funcion funciones  { fprintf(yyout,";R20:	<funciones> ::= <funcion> <funciones>\n"); }
 	|  { fprintf(yyout,";R21:	<funciones> ::= \n"); }
 	;
-funcion : funcion tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) {\n"); }
+funcion : TOK_FUNCTION tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) {\n"); }
 	;
 parametros_funcion : parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
 	|  { fprintf(yyout,";R24:	<parametros_funcion> ::= \n"); }
@@ -113,7 +113,7 @@ asignacion : identificador '=' exp  { fprintf(yyout,";R43:	<asignacion> ::= <ide
 elemento_vector : identificador '[' exp ']'  { fprintf(yyout,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
 	;
 condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> }\n"); }
-	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> '}' else { <sentencias> }\n"); }
+	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= TOK_IF ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
 	;
 bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R52:	<bucle> ::= TOK_WHILE ( <exp> ) { <sentencias> }\n"); }
 	;
@@ -162,7 +162,5 @@ constante_entera : TOK_CONSTANTE_ENTERA { fprintf(yyout,";R104:	<constante_enter
 identificador : TOK_IDENTIFICADOR { fprintf(yyout,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n"); }
 	; 
 
-funcion : TOK_FUNCTION 
-	;
 %%
 
