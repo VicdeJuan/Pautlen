@@ -5,15 +5,14 @@ INCFLAG = -I./includes
 SRCDIR = src
 INCDIR = includes
 OBJDIR = obj
-AUXDIR = src/aux
 
 INCS := $(wildcard $(INCDIR)/*.h)
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/% , $(patsubst %.c,%.o, $(SRCS)))
 
 
-FLEX_GEN := includes/lex.yy.h $(AUXDIR)/lex.yy.c
-BISON_GEN := includes/y.tab.h $(AUXDIR)/y.tab.c $(AUXDIR)/y.output
+FLEX_GEN := includes/lex.yy.h $(SRCDIR)/lex.yy.c
+BISON_GEN := includes/y.tab.h $(SRCDIR)/y.tab.c $(SRCDIR)/y.output
 
 BISON_FILE := alfa.y
 FLEX_FILE := alfa.l
@@ -40,18 +39,21 @@ $(OBJDIR):
 	@echo Creating obj directory
 	@mkdir -p $(OBJDIR)
 
-$(AUXDIR)/y.tab.c: $(BISON_FILE)
+$(SRCDIR)/y.tab.c: $(BISON_FILE)
 	@echo $(FMT_BOLD) "Generating y.yab.c" $(FMT_NORM)
-	bison -yv --defines=includes/y.tab.h -o $(AUXDIR)/y.tab.c $^
+	@bison -yv --defines=$(INCDIR)/y.tab.h -o $(SRCDIR)/y.tab.c $^
 
-$(AUXDIR)/lex.yy.c: $(FLEX_FILE)
+
+$(SRCDIR)/lex.yy.c: $(FLEX_FILE)
 	@echo $(FMT_BOLD) "Generating lex.yy.c" $(FMT_NORM)
-	flex --header-file=includes/lex.yy.h -o $(AUXDIR)/lex.yy.c $^ 
+	@flex --header-file=$(INCDIR)/lex.yy.h -o $(SRCDIR)/lex.yy.c $^ 
 
 
-$(EXECUTABLE): $(OBJS) $(AUXDIR)/y.tab.c $(AUXDIR)/lex.yy.c
+$(EXECUTABLE): $(SRCDIR)/lex.yy.c $(SRCDIR)/y.tab.c $(OBJS) 
 	@echo $(FMT_BOLD) Generating $(EXECUTABLE)  $(FMT_NORM)	
-	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS)
+	$(CC) $(CFLAGS) $(INCFLAG) -c $(SRCDIR)/y.tab.c -o $(OBJDIR)/y.tab.o
+	$(CC) $(CFLAGS) $(INCFLAG) -c $(SRCDIR)/lex.yy.c -o $(OBJDIR)/lex.yy.o
+	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS) $(OBJDIR)/y.tab.o $(OBJDIR)/lex.yy.o
 
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR) 
@@ -60,10 +62,10 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR)
 
 
 BISON: 
-	@bison -yv  --report=state --defines=$(INCDIR)/y.tab.h -o $(AUXDIR)/y.tab.c $(BISON_FILE)
+	@bison -yv  --report=state --defines=$(INCDIR)/y.tab.h -o $(SRCDIR)/y.tab.c $(BISON_FILE)
 
 FLEX:
-	@flex --header-file=includes/lex.yy.h -o $(AUXDIR)/lex.yy.c $(FLEX_FILE) 
+	@flex --header-file=$(INCDIR)/lex.yy.h -o $(SRCDIR)/lex.yy.c $(FLEX_FILE) 
 
 
 final: all clean pack
