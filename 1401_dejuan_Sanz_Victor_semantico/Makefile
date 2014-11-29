@@ -1,18 +1,20 @@
 CC = gcc
-CFLAGS = -ggdb -D_GNU_SOURCE -g -Wall -pedantic -std=c99 
+CFLAGS = -ggdb -D_GNU_SOURCE -g 
+#-Wall -pedantic -std=c99 
 INCFLAG = -I./includes
 
 SRCDIR = src
 INCDIR = includes
 OBJDIR = obj
+AUXSRCDIR = auxsrc
 
 INCS := $(wildcard $(INCDIR)/*.h)
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(patsubst $(SRCDIR)/%,$(OBJDIR)/% , $(patsubst %.c,%.o, $(SRCS)))
 
 
-FLEX_GEN := includes/lex.yy.h $(SRCDIR)/lex.yy.c
-BISON_GEN := includes/y.tab.h $(SRCDIR)/y.tab.c $(SRCDIR)/y.output
+FLEX_GEN := $(INCDIR)/lex.yy.h $(AUXSRCDIR)/lex.yy.c
+BISON_GEN := $(INCDIR)/y.tab.h $(AUXSRCDIR)/y.tab.c $(AUXSRCDIR)/y.output
 
 BISON_FILE := alfa.y
 FLEX_FILE := alfa.l
@@ -39,21 +41,20 @@ $(OBJDIR):
 	@echo Creating obj directory
 	@mkdir -p $(OBJDIR)
 
-$(SRCDIR)/y.tab.c: $(BISON_FILE)
+$(AUXSRCDIR)/y.tab.c: $(BISON_FILE)
 	@echo $(FMT_BOLD) "Generating y.yab.c" $(FMT_NORM)
-	@bison -yv --defines=$(INCDIR)/y.tab.h -o $(SRCDIR)/y.tab.c $^
+	@bison -yv --defines=$(INCDIR)/y.tab.h -o $(AUXSRCDIR)/y.tab.c $^
 
 
-$(SRCDIR)/lex.yy.c: $(FLEX_FILE)
+$(AUXSRCDIR)/lex.yy.c: $(FLEX_FILE)
+	@mkdir -p auxsrc
 	@echo $(FMT_BOLD) "Generating lex.yy.c" $(FMT_NORM)
-	@flex --header-file=$(INCDIR)/lex.yy.h -o $(SRCDIR)/lex.yy.c $^ 
+	@flex --header-file=$(INCDIR)/lex.yy.h -o $(AUXSRCDIR)/lex.yy.c $^ 
 
 
-$(EXECUTABLE): $(SRCDIR)/lex.yy.c $(SRCDIR)/y.tab.c $(OBJS) 
-	@echo $(FMT_BOLD) Generating $(EXECUTABLE)  $(FMT_NORM)	
-	$(CC) $(CFLAGS) $(INCFLAG) -c $(SRCDIR)/y.tab.c -o $(OBJDIR)/y.tab.o
-	$(CC) $(CFLAGS) $(INCFLAG) -c $(SRCDIR)/lex.yy.c -o $(OBJDIR)/lex.yy.o
-	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $(OBJS) $(OBJDIR)/y.tab.o $(OBJDIR)/lex.yy.o
+$(EXECUTABLE): $(AUXSRCDIR)/lex.yy.c $(AUXSRCDIR)/y.tab.c $(OBJS) 
+	@echo $(FMT_BOLD) Generating $(EXECUTABLE) $(FMT_NORM)	
+	$(CC) $(CFLAGS) $(INCFLAG) -o $(EXECUTABLE) $^
 
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR) 
@@ -62,10 +63,10 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c  $(INCS) | $(OBJDIR)
 
 
 BISON: 
-	@bison -yv  --report=state --defines=$(INCDIR)/y.tab.h -o $(SRCDIR)/y.tab.c $(BISON_FILE)
+	@bison -yv  --report=state --defines=$(INCDIR)/y.tab.h -o $(AUXSRCDIR)/y.tab.c $(BISON_FILE)
 
 FLEX:
-	@flex --header-file=$(INCDIR)/lex.yy.h -o $(SRCDIR)/lex.yy.c $(FLEX_FILE) 
+	@flex --header-file=$(INCDIR)/lex.yy.h -o $(AUXSRCDIR)/lex.yy.c $(FLEX_FILE) 
 
 
 final: all clean pack
