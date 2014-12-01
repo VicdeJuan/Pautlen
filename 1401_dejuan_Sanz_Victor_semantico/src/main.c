@@ -4,20 +4,24 @@
 
 
 #include "symbol_table.h"
+#include "y.tab.h"
 
 #define MAX 150
 
 #define JUMP "\n"
 #define SPACE "        "
 
+
 int main(int argc, char const *argv[])
 {
-	symbol_table * tabla = create_symbol_table();
 	int ret_yyparse = -1;
 	/* Close files and free memory used. */
 	printf("Ola k ase\n");
 
-
-//	ret_yyparse = yyparse();
-	delete_symbol_table(tabla);
+	if (ret_yyparse  == -1)
+	{
+		printf("Antes\n");
+		printf("Despues\n");
+	}
+	yyparse();
 }

@@ -1,6 +1,6 @@
 
 #include "symbol_table.h"
-#include "macros.h"
+#include "alfa.h"
 
 #include <stdio.h>
 #include <stdlib.h>

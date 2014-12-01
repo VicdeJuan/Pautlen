@@ -239,7 +239,6 @@ return {
 [a-zA-Z]+[a-zA-Z0-9]{0,100} {
 	fprintf(yyout,";D:	%s\n",yytext);
  	column += strlen(yytext);
-	yylval.atributo.valor_entero;
  	strcpy(yylval.atributo.lexema,yytext);
  	return TOK_IDENTIFICADOR;
 }

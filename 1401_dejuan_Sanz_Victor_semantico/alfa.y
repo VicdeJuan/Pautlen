@@ -1,10 +1,18 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include <string.h>
+	#include "alfa.h"
 	#include "lex.yy.h"
 	#include "symbol_table.h"
+
 extern int column,line,error;
 
+
+void print_sem_error(char * msg){
+		fprintf(ERROR_IFACE_SINTA,"****Error sintáctico en [lin %d, col %d]\n",line,column); 
+	return;
+}
 
 void yyerror(char* s){
 	if (error == 0)
@@ -12,11 +20,18 @@ void yyerror(char* s){
 	return;
 }
 
+/** A inicializar */
+int clase_actual, tipo_actual,ambito_actual,tamanio_vector_actual,pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
+
+/** Ya escrita su inicialización */
+symbol_table * tabla;
+FILE * logfile;
+
 %}
 
 
 %union{
-	tipo_atributo atributo;
+	tipo_atributos atributo;
 }
 
 
@@ -94,111 +109,231 @@ void yyerror(char* s){
 %start programa
 
 %%
- programa : main '{' declaraciones funciones sentencias '}' { fprintf(yyout,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+ programa : inicioTabla main '{' declaraciones funciones sentencias '}' { fprintf(logfile,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 	;
+
+inicioTabla: {
+		tabla = create_symbol_table();
+		logfile = stderr;
+		clase_actual = NONE;
+		tipo_actual = NONE;
+		ambito_actual = NONE;
+		tamanio_vector_actual = NONE;
+		pos_variable_local_actual = 1;
+		num_variables_locales_actual = 0;
+		pos_parametro_actual = 0;
+		num_parametro_actual = 0;
+	}
+	;
+
 main: TOK_MAIN
 	;
-declaraciones : declaracion  { fprintf(yyout,";R2:	<declaraciones> ::= <declaracion>\n"); }
-	| declaracion declaraciones  { fprintf(yyout,";R3:	<declaraciones> ::= <declaracion> <declaraciones>\n"); }
+declaraciones : declaracion  { fprintf(logfile,";R2:	<declaraciones> ::= <declaracion>\n"); }
+	| declaracion declaraciones  { fprintf(logfile,";R3:	<declaraciones> ::= <declaracion> <declaraciones>\n"); }
 	;
-declaracion : clase identificadores ';'  { fprintf(yyout,";R4:	<declaracion> ::= <clase> <identificadores> ;\n"); }
+declaracion : clase identificadores ';'  {
+		clase_actual = NONE;
+		tipo_actual = NONE;
+		tamanio_vector_actual = NONE;
+		fprintf(logfile,";R4:	<declaracion> ::= <clase> <identificadores> ;\n"); 
+	}
 	;
-clase : clase_escalar  { fprintf(yyout,";R5:	<clase> ::= <clase_escalar>\n"); }
-	| clase_vector  { fprintf(yyout,";R7:	<clase> ::= <clase_vector>\n"); }
+clase : clase_escalar  {
+			fprintf(logfile,";R5:	<clase> ::= <clase_escalar>\n"); 
+			clase_actual = ESCALAR;
+		}
+	| clase_vector  {
+			fprintf(logfile,";R7:	<clase> ::= <clase_vector>\n"); 
+			clase_actual = VECTOR;
+		}
 	;
-clase_escalar : tipo  { fprintf(yyout,";R9:	<clase_escalar> ::= <tipo>\n"); }
+clase_escalar : tipo  { fprintf(logfile,";R9:	<clase_escalar> ::= <tipo>\n"); }
 	;
-tipo : TOK_INT  { fprintf(yyout,";R10:	<tipo> ::= int\n"); }
-	| TOK_BOOLEAN { fprintf(yyout,";R11:	<tipo> ::= boolean\n"); }
+tipo : TOK_INT  { 
+			fprintf(logfile,";R10:	<tipo> ::= int\n"); 
+			tipo_actual = INT;
+		}
+	| TOK_BOOLEAN { 
+			fprintf(logfile,";R11:	<tipo> ::= boolean\n"); 
+			tipo_actual = BOOLEAN;
+		}
 	;
-clase_vector : TOK_ARRAY tipo '[' constante_entera  ']' { fprintf(yyout,";R15:	<clase_vector> ::= array <tipo> [ <constante_entera>  ]\n"); }
+clase_vector : TOK_ARRAY tipo '[' constante_entera  ']' {
+	fprintf(logfile,";R15:	<clase_vector> ::= array <tipo> [ <constante_entera>  ]\n"); 
+	tamanio_vector_actual = $4.valor_entero;
+	if ((tamanio_vector_actual < 1) || (tamanio_vector_actual >= MAX_TAMANIO_VECTOR))
+	{
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		sprintf(err_msg, SEM_ERROR_VECTOR_SIZE);
+		print_sem_error(err_msg);
+		free(err_msg);
+	}
+	}
 	;
-identificadores : identificador  { fprintf(yyout,";R18:	<identificadores> ::= <identificador>\n"); }
-	| identificador ',' identificadores  { fprintf(yyout,";R19:	<identificadores> ::= <identificador> , <identificadores>\n"); }
+identificadores : identificador  { fprintf(logfile,";R18:	<identificadores> ::= <identificador>\n"); }
+	| identificador ',' identificadores  { fprintf(logfile,";R19:	<identificadores> ::= <identificador> , <identificadores>\n"); }
 	;
-funciones : funcion funciones  { fprintf(yyout,";R20:	<funciones> ::= <funcion> <funciones>\n"); }
-	|  { fprintf(yyout,";R21:	<funciones> ::= \n"); }
+funciones : funcion funciones  { fprintf(logfile,";R20:	<funciones> ::= <funcion> <funciones>\n"); }
+	|  { fprintf(logfile,";R21:	<funciones> ::= \n"); }
 	;
-funcion : TOK_FUNCTION tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' { fprintf(yyout,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }  \n"); }
+funcion : TOK_FUNCTION tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' {
+
+	fprintf(logfile,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }  \n"); 
+	pos_variable_local_actual = 1;
+	}
 	;
-parametros_funcion : parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
-	|  { fprintf(yyout,";R24:	<parametros_funcion> ::= \n"); }
+parametros_funcion : parametro_funcion resto_parametros_funcion  { fprintf(logfile,";R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
+	|  { fprintf(logfile,";R24:	<parametros_funcion> ::= \n"); }
 	;
-resto_parametros_funcion : ';' parametro_funcion resto_parametros_funcion  { fprintf(yyout,";R25:	<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n"); }
-	|  { fprintf(yyout,";R25:	<resto_parametros_funcion> ::= \n"); }
+resto_parametros_funcion : ';' parametro_funcion resto_parametros_funcion  { fprintf(logfile,";R25:	<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n"); }
+	|  { fprintf(logfile,";R25:	<resto_parametros_funcion> ::= \n"); }
 	;
-parametro_funcion : tipo identificador  { fprintf(yyout,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); }
+parametro_funcion : tipo idpf  {
+	fprintf(logfile,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); 
+	symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+	if (!sim)
+	{
+
+	}
+	else{
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
+		print_sem_error("Error semántico. %s ya se encuentra definido.");
+		free(err_msg);
+	}
+	}
 	;
-declaraciones_funcion : declaraciones  { fprintf(yyout,";R28:	<declaraciones_funcion> ::= <declaraciones>\n"); }
-	|  { fprintf(yyout,";R29:	<declaraciones_funcion> ::= \n"); }
+declaraciones_funcion : declaraciones  { fprintf(logfile,";R28:	<declaraciones_funcion> ::= <declaraciones>\n"); }
+	|  { fprintf(logfile,";R29:	<declaraciones_funcion> ::= \n"); }
 	;
-sentencias : sentencia  { fprintf(yyout,";R30:	<sentencias> ::= <sentencia>\n"); }
-	| sentencia sentencias  { fprintf(yyout,";R31:	<sentencias> ::= <sentencia> <sentencias>\n"); }
+sentencias : sentencia  { fprintf(logfile,";R30:	<sentencias> ::= <sentencia>\n"); }
+	| sentencia sentencias  { fprintf(logfile,";R31:	<sentencias> ::= <sentencia> <sentencias>\n"); }
 	;
-sentencia : sentencia_simple ';'  { fprintf(yyout,";R32:	<sentencia> ::= <sentencia_simple> ;\n"); }
-	| bloque  { fprintf(yyout,";R33:	<sentencia> ::= <bloque>\n"); }
+sentencia : sentencia_simple ';'  { fprintf(logfile,";R32:	<sentencia> ::= <sentencia_simple> ;\n"); }
+	| bloque  { fprintf(logfile,";R33:	<sentencia> ::= <bloque>\n"); }
 	;
-sentencia_simple : asignacion  { fprintf(yyout,";R34:	<sentencia_simple> ::= <asignacion>\n"); }
-	| lectura  { fprintf(yyout,";R35:	<sentencia_simple> ::= <lectura>\n"); }
-	| escritura { fprintf(yyout,";R36:	<sentencia_simple> ::= <escritura>\n"); }
-	| retorno_funcion  { fprintf(yyout,";R38:	<sentencia_simple> ::= <retorno_funcion>\n"); }
+sentencia_simple : asignacion  { fprintf(logfile,";R34:	<sentencia_simple> ::= <asignacion>\n"); }
+	| lectura  { fprintf(logfile,";R35:	<sentencia_simple> ::= <lectura>\n"); }
+	| escritura { fprintf(logfile,";R36:	<sentencia_simple> ::= <escritura>\n"); }
+	| retorno_funcion  { fprintf(logfile,";R38:	<sentencia_simple> ::= <retorno_funcion>\n"); }
 	;
-bloque : condicional  { fprintf(yyout,";R40:	<bloque> ::= <condicional>\n"); }
-	| bucle  { fprintf(yyout,";R41:	<bloque> ::= <bucle>\n"); }
+bloque : condicional  { fprintf(logfile,";R40:	<bloque> ::= <condicional>\n"); }
+	| bucle  { fprintf(logfile,";R41:	<bloque> ::= <bucle>\n"); }
 	;
-asignacion : identificador '=' exp  { fprintf(yyout,";R43:	<asignacion> ::= <identificador> = <exp>\n"); }
-	| elemento_vector '=' exp { fprintf(yyout,";R44:	<asignacion> ::= <elemento_vector> = <exp>\n"); }
+asignacion : identificador '=' exp  { fprintf(logfile,";R43:	<asignacion> ::= <identificador> = <exp>\n"); }
+	| elemento_vector '=' exp { fprintf(logfile,";R44:	<asignacion> ::= <elemento_vector> = <exp>\n"); }
 	;
-elemento_vector : identificador '[' exp ']'  { fprintf(yyout,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
+elemento_vector : identificador '[' exp ']'  { fprintf(logfile,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
 	;
-condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); }
-	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(yyout,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
+condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); }
+	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
 	;
-bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(yyout,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
+bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
 	;
-lectura : TOK_SCANF identificador  { fprintf(yyout,";R54:	<lectura> ::= scanf <identificador>\n"); }
+lectura : TOK_SCANF identificador  { fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); }
 	;
-escritura : TOK_PRINTF exp { fprintf(yyout,";R56:	<escritura> ::= printf <exp>\n"); }
+escritura : TOK_PRINTF exp { fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); }
 	;
-retorno_funcion : TOK_RETURN exp  { fprintf(yyout,";R61:	<retorno_funcion> ::= return <exp>\n"); }
+retorno_funcion : TOK_RETURN exp  { fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); }
 	;
-exp : exp '+' exp  { fprintf(yyout,";R72:	<exp> ::= <exp> + <exp>\n"); }
-	| exp '-' exp  { fprintf(yyout,";R73:	<exp> ::= <exp> - <exp>\n"); }
-	| exp '/' exp  { fprintf(yyout,";R74:	<exp> ::= <exp> / <exp>\n"); }
-	| exp '*' exp  { fprintf(yyout,";R75:	<exp> ::= <exp> * <exp>\n"); }
-	| '-' exp  { fprintf(yyout,";R76:	<exp> ::= - <exp>\n"); }
-	| exp TOK_AND exp  { fprintf(yyout,";R77:	<exp> ::= <exp> && <exp>\n"); }
-	| exp TOK_OR exp  { fprintf(yyout,";R78:	<exp> ::= <exp> || <exp>\n"); }
-	| '!' exp  { fprintf(yyout,";R79:	<exp> ::= ! <exp>\n"); }
-	| '(' exp ')'  { fprintf(yyout,";R82:	<exp> ::= ( <exp> )\n"); }
-	| '(' comparacion ')'  { fprintf(yyout,";R83:	<exp> ::= ( <comparacion> )\n"); }
-	| identificador  { fprintf(yyout,";R80:	<exp> ::= <identificador>\n"); }
-	| constante  { fprintf(yyout,";R81:	<exp> ::= <constante>\n"); }
-	| elemento_vector  { fprintf(yyout,";R85:	<exp> ::= <elemento_vector>\n"); }
-	| identificador '(' lista_expresiones ')'  { fprintf(yyout,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); }
+exp : exp '+' exp  { fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); }
+	| exp '-' exp  { fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); }
+	| exp '/' exp  { fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); }
+	| exp '*' exp  { fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); }
+	| '-' exp  { fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); }
+	| exp TOK_AND exp  { fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); }
+	| exp TOK_OR exp  { fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); }
+	| '!' exp  { fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); }
+	| '(' exp ')'  { fprintf(logfile,";R82:	<exp> ::= ( <exp> )\n"); }
+	| '(' comparacion ')'  { fprintf(logfile,";R83:	<exp> ::= ( <comparacion> )\n"); }
+	| identificador  { fprintf(logfile,";R80:	<exp> ::= <identificador>\n"); }
+	| constante  { fprintf(logfile,";R81:	<exp> ::= <constante>\n"); }
+	| elemento_vector  { fprintf(logfile,";R85:	<exp> ::= <elemento_vector>\n"); }
+	| identificador '(' lista_expresiones ')'  { fprintf(logfile,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); }
 	;
-lista_expresiones : exp resto_lista_expresiones  { fprintf(yyout,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n"); }
-	|  { fprintf(yyout,";R90:	<lista_expresiones> ::= \n"); }
+lista_expresiones : exp resto_lista_expresiones  { fprintf(logfile,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n"); }
+	|  { fprintf(logfile,";R90:	<lista_expresiones> ::= \n"); }
 	;
-resto_lista_expresiones : ',' exp resto_lista_expresiones  { fprintf(yyout,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
-	|  {/*vacia*/} { fprintf(yyout,";R91:	<resto_lista_expresiones> ::= \n"); }
+resto_lista_expresiones : ',' exp resto_lista_expresiones  { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
+	|  {/*vacia*/} { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= \n"); }
 	;
-comparacion : exp TOK_IGUAL exp  { fprintf(yyout,";R93:	<comparacion> ::= <exp> == <exp>\n"); }
-	| exp TOK_DISTINTO exp  { fprintf(yyout,";R94:	<comparacion> ::= <exp> != <exp>\n"); }
-	| exp TOK_MENORIGUAL exp  { fprintf(yyout,";R95:	<comparacion> ::= <exp> <= <exp>\n"); }
-	| exp TOK_MAYORIGUAL exp  { fprintf(yyout,";R96:	<comparacion> ::= <exp> >= <exp>\n"); }
-	| exp '<' exp  { fprintf(yyout,";R97:	<comparacion> ::= <exp> < <exp>\n"); }
-	| exp '>' exp  { fprintf(yyout,";R98:	<comparacion> ::= <exp> > <exp>\n"); }
+comparacion : exp TOK_IGUAL exp  { fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); }
+	| exp TOK_DISTINTO exp  { fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); }
+	| exp TOK_MENORIGUAL exp  { fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); }
+	| exp TOK_MAYORIGUAL exp  { fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); }
+	| exp '<' exp  { fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); }
+	| exp '>' exp  { fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); }
 	;
-constante : constante_logica  { fprintf(yyout,";R99:	<constante> ::= <constante_logica>\n"); }
-	| constante_entera  { fprintf(yyout,";R100:	<constante> ::= <constante_entera>\n"); }
+constante : constante_logica  { fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); }
+	| constante_entera  { fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n"); }
 	;
-constante_logica : TOK_TRUE  { fprintf(yyout,";R102:	<constante_logica> ::= TOK_TRUE\n"); }
-	| TOK_FALSE { fprintf(yyout,";R103:	<constante_logica> ::= TOK_FALSE\n"); }
+constante_logica : TOK_TRUE  { fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n"); }
+	| TOK_FALSE { fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); }
 	;
-constante_entera : TOK_CONSTANTE_ENTERA { fprintf(yyout,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); }
+constante_entera : TOK_CONSTANTE_ENTERA { fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); }
 	;
-identificador : TOK_IDENTIFICADOR { fprintf(yyout,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n"); }
+
+idpf : TOK_IDENTIFICADOR {
+	if (ambito_actual != LOCAL)
+		fprintf(logfile,"Tenemos un problema. Buscame y lo vemos");
+	symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+	if (!sim)
+	{
+		sim = malloc(sizeof(symbol));
+		initialize_simbolo(sim);
+		strcpy(sim->key,$1.lexema);
+
+		sim->data_type = tipo_actual;
+		sim->variable_type = clase_actual;
+		sim->symbol_type = VARIABLE;
+		
+		add_symbol(tabla,sim,ambito_actual);
+
+		pos_parametro_actual++;
+		num_parametro_actual++;
+	}
+	else{
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
+		print_sem_error("Error semántico. %s ya se encuentra definido.");
+		free(err_msg);
+	}
+	
+
+}
+
+identificador : TOK_IDENTIFICADOR {
+	fprintf(logfile,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n"); 
+	symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+	if (!sim)
+	{
+		if(clase_actual == ESCALAR && ambito_actual == LOCAL){
+			print_sem_error(SEM_ERROR_JUST_ESCALAR_IN_LOCAL);
+		}else{		
+			sim = malloc(sizeof(symbol));
+			initialize_simbolo(sim);
+			strcpy(sim->key,$1.lexema);
+
+			sim->data_type = tipo_actual;
+			sim->variable_type = clase_actual;
+			sim->symbol_type = VARIABLE;
+			
+			add_symbol(tabla,sim,ambito_actual);
+			
+			if (ambito_actual == LOCAL){
+				pos_variable_local_actual++;
+				num_variables_locales_actual++;
+			}
+		}
+	}
+	else{
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
+		print_sem_error("Error semántico. %s ya se encuentra definido.");
+		free(err_msg);
+	}
+
+	}
 	; 
 
 %%
