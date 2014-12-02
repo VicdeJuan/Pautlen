@@ -4,4 +4,6 @@
 	Gestión de las variables globales
 		int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
 
+3) data_type en funciones guarda el retorno?
 
+4) num_parametros_llamada_actual.

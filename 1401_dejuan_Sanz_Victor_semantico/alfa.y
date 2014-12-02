@@ -23,7 +23,7 @@ void yyerror(char* s){
 /** A inicializar */
 int clase_actual, tipo_actual,ambito_actual,tamanio_vector_actual;
 int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
-
+int en_explist,num_parametros_llamada_actual;
 /** Ya escrita su inicialización */
 symbol_table * tabla;
 FILE * logfile;
@@ -98,6 +98,7 @@ FILE * logfile;
 %type <atributo> funcion
 %type <atributo> fn_name
 %type <atributo> fn_declaration
+%type <atributo> idf_llamada_funcion
 
 
 %right '='
@@ -204,7 +205,7 @@ fn_name : TOK_FUNCTION tipo TOK_IDENTIFICADOR {
 		pos_variable_local_actual = 1;
 		num_parametro_actual = 0;
 		pos_parametro_actual = 0;
-		strcpy($$.lexema,$3.lexema);
+		strcpy($$.lexema,$3.lexema);	
 
 	}
 	else{
@@ -250,7 +251,7 @@ parametro_funcion : tipo idpf  {
 	symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
 	if (!sim)
 	{
-
+		/*Supongo que aquí va algo*/
 	}
 	else{
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
@@ -277,87 +278,165 @@ sentencia_simple : asignacion  { fprintf(logfile,";R34:	<sentencia_simple> ::= <
 bloque : condicional  { fprintf(logfile,";R40:	<bloque> ::= <condicional>\n"); }
 	| bucle  { fprintf(logfile,";R41:	<bloque> ::= <bucle>\n"); }
 	;
-asignacion : identificador '=' exp  { fprintf(logfile,";R43:	<asignacion> ::= <identificador> = <exp>\n"); }
+asignacion : TOK_IDENTIFICADOR '=' exp  { fprintf(logfile,";R43:	<asignacion> ::= <identificador> = <exp>\n"); }
 	| elemento_vector '=' exp { fprintf(logfile,";R44:	<asignacion> ::= <elemento_vector> = <exp>\n"); }
 	;
-elemento_vector : identificador '[' exp ']'  { fprintf(logfile,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
+elemento_vector : TOK_IDENTIFICADOR '[' exp ']'  { fprintf(logfile,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); }
 	;
 condicional : TOK_IF  '(' exp ')' '{' sentencias '}'  { fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); }
 	| TOK_IF '(' exp ')' '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
 	;
 bucle : TOK_WHILE '(' exp ')' '{' sentencias '}'  { fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
 	;
-lectura : TOK_SCANF identificador  { fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); }
+lectura : TOK_SCANF TOK_IDENTIFICADOR  { fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); }
 	;
-escritura : TOK_PRINTF exp { fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); }
+escritura : TOK_PRINTF TOK_IDENTIFICADOR { fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); }
 	;
-retorno_funcion : TOK_RETURN exp  { fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); }
+retorno_funcion : TOK_RETURN TOK_IDENTIFICADOR  { fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); }
 	;
 exp : exp '+' exp  { 
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
-		CHECK_INT_TYPES;
+		CHECK_INT_TYPES($$,$1,$3);
 	}
 	| exp '-' exp  { 
 		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
-		CHECK_INT_TYPES;
+		CHECK_INT_TYPES($$,$1,$3);
 	}
 	| exp '/' exp  { 
 		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
-		CHECK_INT_TYPES;
+		CHECK_INT_TYPES($$,$1,$3);
 	}
 	| exp '*' exp  { 
 		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
-		CHECK_INT_TYPES;
+		CHECK_INT_TYPES($$,$1,$3);
 	}
 	| '-' exp  { 
 		fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); 
-		CHECK_INT_TYPE;
+		CHECK_INT_TYPE($$,$2);
 	}
 	| exp TOK_AND exp  { 
 		fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); 
-		CHECK_BOOLEAN_TYPES;
+		CHECK_BOOLEAN_TYPES($$,$1,$3);
 	}
 	| exp TOK_OR exp  { 
 		fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); 
-		CHECK_BOOLEAN_TYPES;
+		CHECK_BOOLEAN_TYPES($$,$1,$3);
 	}
 	| '!' exp  { 
 		fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); 
-		CHECK_BOOLEAN_TYPE;
+		CHECK_BOOLEAN_TYPE($$,$2);
 	}
 	| '(' exp ')'  { 
 		fprintf(logfile,";R82:	<exp> ::= ( <exp> )\n"); 
 		$$.tipo = $2.tipo;
+		$$.es_direccion = $2.es_direccion;
 	}
 	| '(' comparacion ')'  { 
 		fprintf(logfile,";R83:	<exp> ::= ( <comparacion> )\n"); 
 		$$.tipo = $2.tipo;
+		$$.es_direccion = $2.es_direccion;
 	}
-	| identificador  { 
+	| TOK_IDENTIFICADOR  { 
 			fprintf(logfile,";R80:	<exp> ::= <identificador>\n"); 
+			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+			symbol * sim;
+			if (ambito_actual == LOCAL){
+				sim = search_symbol(tabla,$1.lexema,ambito_actual);
+				if (!sim)
+					sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			}else
+				sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			if (sim)
+			{
+				if (!(sim->symbol_type != FUNCTION && sim->variable_type == ESCALAR)){
+					sprintf(err_msg, SEM_ERROR_FUNCTION_NOT_ALLOWED ,$1.lexema);
+					print_sem_error(err_msg);
+				}else{
+					$$.tipo = sim->data_type;
+					$$.es_direccion = 1;
+				}
+			}
+			else{
+				sprintf(err_msg, SEM_ERROR_NOT_DEFINED ,$1.lexema);
+				print_sem_error(err_msg);
+			}
+			free(err_msg);
 		}
 	| constante  { 
 			fprintf(logfile,";R81:	<exp> ::= <constante>\n"); 
+			$$.es_direccion = $1.es_direccion;
+			$$.tipo = $1.tipo;
 		}
 	| elemento_vector  { 
 			fprintf(logfile,";R85:	<exp> ::= <elemento_vector>\n"); 
+			$$.es_direccion = $1.es_direccion;
+			$$.tipo = $1.tipo;
+
 		}
-	| identificador '(' lista_expresiones ')'  { 
+	| idf_llamada_funcion '(' lista_expresiones ')'  { 
 			fprintf(logfile,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); 
+			symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+			if (sim)
+			{
+				if (sim->num_parameter < num_parametros_llamada_actual){
+					sprintf(err_msg, SEM_ERROR_NEED_MORE_PARAM ,$1.lexema,sim->num_parameter,num_parametros_llamada_actual);
+					print_sem_error(err_msg);					
+				} else if (sim->num_parameter > num_parametros_llamada_actual){
+					sprintf(err_msg, SEM_ERROR_TOO_MUCH_PARAM ,$1.lexema,sim->num_parameter,num_parametros_llamada_actual);
+					print_sem_error(err_msg);					
+				}else{
+					/* Todo bien, todo correcto. Seguimos: */
+					en_explist = 0;
+					$$.tipo = sim->data_type;
+					$$.es_direccion = 0;
+				}
+			}else{
+				sprintf(err_msg, SEM_ERROR_FATAL ,$1.lexema);
+				print_sem_error(err_msg);
+			}
+			free(err_msg);
 		}
 	;
-lista_expresiones : exp resto_lista_expresiones  { fprintf(logfile,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n"); }
+
+idf_llamada_funcion : TOK_IDENTIFICADOR {
+
+	symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+	char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+	if (sim)
+	{
+		if (sim->symbol_type != FUNCTION) {
+			sprintf(err_msg,SEM_ERROR_NOT_FUNCTION,$1.lexema);
+			print_sem_error(err_msg);
+		}
+		if (en_explist != 1){
+			sprintf(err_msg,SEM_ERROR_FUNCTION_NOT_ALLOWED,$1.lexema);
+			num_parametros_llamada_actual = 0;
+		}
+		en_explist = 1;
+		strcpy($$.lexema,$1.lexema);
+	}
+	else{
+		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
+		print_sem_error(err_msg);
+		free(err_msg);
+	}
+
+}
+	;
+
+lista_expresiones : exp resto_lista_expresiones  {num_parametros_llamada_actual++; fprintf(logfile,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n"); }
 	|  { fprintf(logfile,";R90:	<lista_expresiones> ::= \n"); }
 	;
-resto_lista_expresiones : ',' exp resto_lista_expresiones  { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
+resto_lista_expresiones : ',' exp resto_lista_expresiones  { num_parametros_llamada_actual++; fprintf(logfile,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
 	|  {/*vacia*/} { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= \n"); }
 	;
-comparacion : exp TOK_IGUAL exp  { fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN;	}
-	| exp TOK_DISTINTO exp  { fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
-	| exp TOK_MENORIGUAL exp  { fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
-	| exp TOK_MAYORIGUAL exp  { fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
-	| exp '<' exp  { fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
-	| exp '>' exp  { fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
+comparacion : exp TOK_IGUAL exp  { fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); CHECK_INT_TYPES($$,$1,$3); $$.tipo = BOOLEAN;	}
+	| exp TOK_DISTINTO exp  { fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); CHECK_INT_TYPES($$,$1,$3); $$.tipo = BOOLEAN; }
+	| exp TOK_MENORIGUAL exp  { fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); CHECK_INT_TYPES($$,$1,$3); $$.tipo = BOOLEAN; }
+	| exp TOK_MAYORIGUAL exp  { fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); CHECK_INT_TYPES($$,$1,$3); $$.tipo = BOOLEAN; }
+	| exp '<' exp  { fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); CHECK_INT_TYPES($$,$1,$3); $$.tipo = BOOLEAN; }
+	| exp '>' exp  { fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); CHECK_INT_TYPES($$,$1,$3); $$.tipo = BOOLEAN; }
 	;
 constante : constante_logica  { fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
 	| constante_entera  { fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n");  $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
