@@ -21,7 +21,8 @@ void yyerror(char* s){
 }
 
 /** A inicializar */
-int clase_actual, tipo_actual,ambito_actual,tamanio_vector_actual,pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
+int clase_actual, tipo_actual,ambito_actual,tamanio_vector_actual;
+int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
 
 /** Ya escrita su inicialización */
 symbol_table * tabla;
@@ -95,6 +96,8 @@ FILE * logfile;
 %type <atributo> constante_entera
 %type <atributo> identificador
 %type <atributo> funcion
+%type <atributo> fn_name
+%type <atributo> fn_declaration
 
 
 %right '='
@@ -173,20 +176,74 @@ clase_vector : TOK_ARRAY tipo '[' constante_entera  ']' {
 identificadores : identificador  { fprintf(logfile,";R18:	<identificadores> ::= <identificador>\n"); }
 	| identificador ',' identificadores  { fprintf(logfile,";R19:	<identificadores> ::= <identificador> , <identificadores>\n"); }
 	;
+
 funciones : funcion funciones  { fprintf(logfile,";R20:	<funciones> ::= <funcion> <funciones>\n"); }
 	|  { fprintf(logfile,";R21:	<funciones> ::= \n"); }
 	;
-funcion : TOK_FUNCTION tipo identificador '(' parametros_funcion ')' '{' declaraciones_funcion sentencias '}' {
 
-	fprintf(logfile,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }  \n"); 
-	pos_variable_local_actual = 1;
+fn_name : TOK_FUNCTION tipo TOK_IDENTIFICADOR { 
+	symbol * sim = search_symbol(tabla,$3.lexema,GLOBAL); 
+	int i;
+	if (!sim)
+	{
+		for (i=0;i<2;i++){
+			/* Recordamos local es 0 y global es 1 */
+			sim = malloc(sizeof(symbol));
+			initialize_simbolo(sim);
+			strcpy(sim->key,$3.lexema);
+
+			sim->data_type = tipo_actual;
+			sim->symbol_type = FUNCTION;
+
+			add_symbol(tabla,sim,i);
+			ambito_actual = LOCAL;
+			
+		}
+		
+		num_variables_locales_actual = 0;
+		pos_variable_local_actual = 1;
+		num_parametro_actual = 0;
+		pos_parametro_actual = 0;
+		strcpy($$.lexema,$3.lexema);
+
 	}
+	else{
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
+		print_sem_error(err_msg);
+		free(err_msg);
+	}
+	}	
 	;
+
+
+fn_declaration : fn_name '(' parametros_funcion ')' '{' declaraciones_funcion {
+	int i = 0;
+	for(i = 0; i<2; i++){
+		symbol * sim = search_symbol(tabla,$3.lexema,i); 	
+
+		sim->num_parameter = num_parametro_actual;
+		sim->num_local_variables = num_variables_locales_actual;
+	
+	}
+	strcpy($$.lexema,$1.lexema);
+
+}
+;
+funcion : fn_declaration sentencias '}' {	
+	fprintf(logfile,";R20:	<funcion> ::= funcion <tipo> <identificador> ( <parametros_funcion> ) { <declaraciones_funcion> <sentencias> }  \n"); 
+	close_local_ambit(tabla);
+	ambito_actual = GLOBAL;
+	/* Ya están actualizados los num de la función. */
+	pos_variable_local_actual = 1;
+
+}
+
 parametros_funcion : parametro_funcion resto_parametros_funcion  { fprintf(logfile,";R23:	<parametros_funcion> ::= <parametro_funcion> <resto_parametros_funcion>\n"); }
 	|  { fprintf(logfile,";R24:	<parametros_funcion> ::= \n"); }
 	;
 resto_parametros_funcion : ';' parametro_funcion resto_parametros_funcion  { fprintf(logfile,";R25:	<resto_parametros_funcion> ::= ; <parametro_funcion> <resto_parametros_funcion>\n"); }
-	|  { fprintf(logfile,";R25:	<resto_parametros_funcion> ::= \n"); }
+	|  { fprintf(logfile,";R26:	<resto_parametros_funcion> ::= \n"); }
 	;
 parametro_funcion : tipo idpf  {
 	fprintf(logfile,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); 
@@ -198,7 +255,7 @@ parametro_funcion : tipo idpf  {
 	else{
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
-		print_sem_error("Error semántico. %s ya se encuentra definido.");
+		print_sem_error(err_msg);
 		free(err_msg);
 	}
 	}
@@ -236,20 +293,58 @@ escritura : TOK_PRINTF exp { fprintf(logfile,";R56:	<escritura> ::= printf <exp>
 	;
 retorno_funcion : TOK_RETURN exp  { fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); }
 	;
-exp : exp '+' exp  { fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); }
-	| exp '-' exp  { fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); }
-	| exp '/' exp  { fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); }
-	| exp '*' exp  { fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); }
-	| '-' exp  { fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); }
-	| exp TOK_AND exp  { fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); }
-	| exp TOK_OR exp  { fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); }
-	| '!' exp  { fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); }
-	| '(' exp ')'  { fprintf(logfile,";R82:	<exp> ::= ( <exp> )\n"); }
-	| '(' comparacion ')'  { fprintf(logfile,";R83:	<exp> ::= ( <comparacion> )\n"); }
-	| identificador  { fprintf(logfile,";R80:	<exp> ::= <identificador>\n"); }
-	| constante  { fprintf(logfile,";R81:	<exp> ::= <constante>\n"); }
-	| elemento_vector  { fprintf(logfile,";R85:	<exp> ::= <elemento_vector>\n"); }
-	| identificador '(' lista_expresiones ')'  { fprintf(logfile,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); }
+exp : exp '+' exp  { 
+		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
+		CHECK_INT_TYPES;
+	}
+	| exp '-' exp  { 
+		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
+		CHECK_INT_TYPES;
+	}
+	| exp '/' exp  { 
+		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
+		CHECK_INT_TYPES;
+	}
+	| exp '*' exp  { 
+		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
+		CHECK_INT_TYPES;
+	}
+	| '-' exp  { 
+		fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); 
+		CHECK_INT_TYPE;
+	}
+	| exp TOK_AND exp  { 
+		fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); 
+		CHECK_BOOLEAN_TYPES;
+	}
+	| exp TOK_OR exp  { 
+		fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); 
+		CHECK_BOOLEAN_TYPES;
+	}
+	| '!' exp  { 
+		fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); 
+		CHECK_BOOLEAN_TYPE;
+	}
+	| '(' exp ')'  { 
+		fprintf(logfile,";R82:	<exp> ::= ( <exp> )\n"); 
+		$$.tipo = $2.tipo;
+	}
+	| '(' comparacion ')'  { 
+		fprintf(logfile,";R83:	<exp> ::= ( <comparacion> )\n"); 
+		$$.tipo = $2.tipo;
+	}
+	| identificador  { 
+			fprintf(logfile,";R80:	<exp> ::= <identificador>\n"); 
+		}
+	| constante  { 
+			fprintf(logfile,";R81:	<exp> ::= <constante>\n"); 
+		}
+	| elemento_vector  { 
+			fprintf(logfile,";R85:	<exp> ::= <elemento_vector>\n"); 
+		}
+	| identificador '(' lista_expresiones ')'  { 
+			fprintf(logfile,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); 
+		}
 	;
 lista_expresiones : exp resto_lista_expresiones  { fprintf(logfile,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n"); }
 	|  { fprintf(logfile,";R90:	<lista_expresiones> ::= \n"); }
@@ -257,20 +352,20 @@ lista_expresiones : exp resto_lista_expresiones  { fprintf(logfile,";R89:	<lista
 resto_lista_expresiones : ',' exp resto_lista_expresiones  { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
 	|  {/*vacia*/} { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= \n"); }
 	;
-comparacion : exp TOK_IGUAL exp  { fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); }
-	| exp TOK_DISTINTO exp  { fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); }
-	| exp TOK_MENORIGUAL exp  { fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); }
-	| exp TOK_MAYORIGUAL exp  { fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); }
-	| exp '<' exp  { fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); }
-	| exp '>' exp  { fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); }
+comparacion : exp TOK_IGUAL exp  { fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN;	}
+	| exp TOK_DISTINTO exp  { fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
+	| exp TOK_MENORIGUAL exp  { fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
+	| exp TOK_MAYORIGUAL exp  { fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
+	| exp '<' exp  { fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
+	| exp '>' exp  { fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); CHECK_INT_TYPES; $$.tipo = BOOLEAN; }
 	;
-constante : constante_logica  { fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); }
-	| constante_entera  { fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n"); }
+constante : constante_logica  { fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
+	| constante_entera  { fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n");  $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
 	;
-constante_logica : TOK_TRUE  { fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n"); }
-	| TOK_FALSE { fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); }
+constante_logica : TOK_TRUE  { fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n");$$.tipo = BOOLEAN; $$.es_direccion = 0;}
+	| TOK_FALSE { fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); $$.tipo = BOOLEAN; $$.es_direccion = 0;}
 	;
-constante_entera : TOK_CONSTANTE_ENTERA { fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); }
+constante_entera : TOK_CONSTANTE_ENTERA { fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); $$.tipo = INT; $$.es_direccion = 0;}
 	;
 
 idpf : TOK_IDENTIFICADOR {
@@ -295,7 +390,7 @@ idpf : TOK_IDENTIFICADOR {
 	else{
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
-		print_sem_error("Error semántico. %s ya se encuentra definido.");
+		print_sem_error(err_msg);
 		free(err_msg);
 	}
 	
@@ -329,7 +424,7 @@ identificador : TOK_IDENTIFICADOR {
 	else{
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
-		print_sem_error("Error semántico. %s ya se encuentra definido.");
+		print_sem_error(err_msg);
 		free(err_msg);
 	}
 

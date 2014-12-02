@@ -1,2 +1,7 @@
 1) num_variables_locales_actual++; en TOK_IDENTIFICADOR
 
+2) fn_declaration : fn_name '(' parametros_funcion ')' '{' declaraciones_funcion {
+	Gestión de las variables globales
+		int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
+
+
