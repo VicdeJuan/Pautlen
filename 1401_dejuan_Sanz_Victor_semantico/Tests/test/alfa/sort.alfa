@@ -1,0 +1,121 @@
+
+// RECIBE POR PANTALLA VARIOS VALORES EN UN BUCLE (HASTA 64 O HASTA QUE SE META '0')
+// CUANDO DEJA DE RECIBIR POR STDIN LOS ORDENA, IMPRIME DOS LINEAS DE 111111 COMO SEPARADOR
+// E IMPRIME LA LISTA ORDENADA.
+
+main { 
+	array int [64] inbuff;
+	int i, j, tmp;
+	boolean stop;
+	
+	// no se usa para nada, solo porque es necesario una asignacion al llamar a funciones
+	int res;
+	
+	function int getval() {
+		int val;
+		
+		scanf val;
+		return val;
+	}
+	
+	function int compare(int a; int b) {
+		if ((a < b)) {
+			return -1;
+		}
+		
+		if ((a > b)) {
+			return 1;
+		}
+		
+		return 0;
+	}
+	
+	function boolean isZero(int a) {
+		if ((a == 0)) {
+			return true;
+		}
+		return false;
+	}
+	
+	function int myPrint(int a; boolean separator) {
+		if (separator) {
+			printf 11111111;
+		} else {
+			printf a;
+		}
+		return 0;
+	}
+	
+	
+	// funcion sin uso. Descomentada da error: no hay ningun return.
+	//function boolean faux() {
+	//	int a;
+	//	a = 1;
+	//}
+	
+	// getCurrentIndex() es solo la variable global i !!
+	function int getCurrentIndex() {
+		return i;
+	}
+	
+	// updateIndex() es solo i = i+1  !!!  (tiene que actualizar la global desde aqui)
+	function int updateIndex() {
+		i = i+1;
+		return i;
+	}
+	
+	// suma 1
+	function int sum(int a) {
+		return a+1;
+	}
+	
+	//i = 0;
+	i = sum(-1);
+	stop = false;
+	while ((getCurrentIndex() < 64) && !stop) {
+		inbuff[getCurrentIndex()] = getval();
+		
+		// descomentando esta linea y comentando la siguiente tiene que dar error:
+		// no se puede llamar a funciones en argumentos
+		
+		//if (isZero(inbuff[getCurrentIndex()])) {
+		
+		if (isZero(inbuff[i])) {
+			stop = true;
+		}
+		res = updateIndex();
+	}
+	
+	// i = 0;
+	i = sum(-1);
+	// j = 0;
+	j = sum(-1);
+	while ((i < 64) && !isZero(inbuff[i])) {
+		// j = i+1;
+		j = sum(i);
+		while ((j < 64) && !isZero(inbuff[j])) {
+			if ((compare(inbuff[i], inbuff[j]) == 1)) {
+				tmp = inbuff[getCurrentIndex()];
+				inbuff[getCurrentIndex()] = inbuff[j];
+				inbuff[j] = tmp;
+			}
+			// j = j+1;
+			j = sum(j);
+		}
+		
+		// i = i+1;
+		res = updateIndex();
+	}
+	
+	res = myPrint(0, true);	// separador (11111111)
+	res = myPrint(0, true);	// separador (11111111)
+	
+	// i = 0;
+	i = sum(-1);
+	while ((i < 64) && !isZero(inbuff[i])) {
+		res = myPrint(inbuff[i], false);
+		
+		// i = i+1;
+		res = updateIndex();
+	}
+}

@@ -1,0 +1,28 @@
+// Asignacion incompatible en linea 20.
+
+main
+{
+    int x, y;
+    boolean a, b;
+
+    
+    
+    
+    
+
+    function int suma (int n1; int n2) {
+    	     int z;
+    	     z = n1 + n2;
+    	     return z;
+    }
+
+
+
+    x = a;
+   
+}
+
+
+
+
+

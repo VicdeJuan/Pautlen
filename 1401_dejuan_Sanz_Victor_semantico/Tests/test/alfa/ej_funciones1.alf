@@ -1,0 +1,30 @@
+// Tratamiento de funciones: suma
+
+main
+{
+// Declaraciones
+
+    int x, y, resultado;
+
+// Funciones
+	function int suma (int num1; int num2)
+	{
+		int a;
+		a = num1 + num2;
+		return a;
+	}
+
+// Sentencias
+
+	scanf x;
+	scanf y;
+
+	resultado = suma (x,y);
+
+	printf resultado;
+}
+
+
+
+
+

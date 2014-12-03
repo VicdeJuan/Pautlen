@@ -1,0 +1,99 @@
+// HACE AND DE 2 NUMEROS; COMO MAXIMO PUEDEN SER 255 (SE USA UN VECTOR DE TAM 8)
+main {
+	array boolean [8] tmp;
+	int a, b, c;
+	int potencia;
+	int i, j, index;
+	boolean stop;
+	
+	// pow(a,b) = a^b
+	//function int pow(int base; int pot) {
+	//	int i, res;
+	//	res = 1;
+	//	i = 0;
+	//	
+	//	while ((i < pot)) {
+	//		res = res*base;
+	//		i = i+1;
+	//	}
+	//	return res;
+	//}
+	
+	scanf a;
+	scanf b;
+	
+	stop = false;
+	
+	index = 8;
+	
+	// calculo 1, saca el valor en "binario" de los primeros 8 bits
+	// de a
+	i = index-1;
+	while(!stop && (i > -1)) {
+	
+		// calcular 2^i
+		potencia = 1;
+		j = 0;
+		while ((j < i)) {
+			potencia = potencia*2;
+			j = j+1;
+		}
+	
+		if ((a > potencia-1)) {
+			tmp[i] = true;
+			a = a - potencia;
+		} else {
+			tmp[i] = false;
+		}
+		//printf tmp[i];
+		i = i-1;
+	}
+	
+	// calculo 2, una AND (mas adelante pasarlo a otra func, quiza)
+	i = index-1;
+	stop = false;
+	while(!stop) {
+		if ((i < 0)) {
+			stop = true;
+			
+			// metido aqui para ver bucles anidados
+			c = 0;
+			i = 0;
+			while ((i < index)) {
+				if (tmp[i]) {	// si tmp[i] no es false (osea 0 el bit i)
+				
+					// calcular 2^i
+					potencia = 1;
+					j = 0;
+					while ((j < i)) {
+						potencia = potencia*2;
+						j = j+1;
+					}
+					
+					c = c+potencia;
+				}
+				i=i+1;
+			}
+		} else {
+			
+			// calcular 2^i
+			potencia = 1;
+			j = 0;
+			while ((j < i)) {
+				potencia = potencia*2;
+				j = j+1;
+			}		
+			
+			if ((b > potencia-1)) {
+				tmp[i] = tmp[i] && true;
+				b = b - potencia;
+			} else {
+				tmp[i] = tmp[i] && false;
+			}
+			// printf tmp[i];
+		}
+		i = i-1;
+	}
+	printf c;
+
+}

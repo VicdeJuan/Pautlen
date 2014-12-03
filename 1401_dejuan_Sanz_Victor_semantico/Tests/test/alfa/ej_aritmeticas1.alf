@@ -1,0 +1,39 @@
+// Tratamiento de operaciones aritmeticas
+
+main
+{
+	array int[5] v;
+// Declaraciones
+
+    int x, y;
+	int z;
+
+    v[0] = 1;
+// Sentencias
+
+	scanf x;
+	scanf y;
+
+	z = x+y;
+
+	printf z;
+
+	z = x-y;
+	printf z;
+
+	z = x*y;
+	printf z;
+
+	z = x/y;
+	printf z;
+
+	z=-x;
+	printf z;
+
+
+}
+
+
+
+
+

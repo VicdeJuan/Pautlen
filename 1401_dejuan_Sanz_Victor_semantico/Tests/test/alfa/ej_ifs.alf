@@ -1,0 +1,43 @@
+// Tratamiento de sentencias condicionales (if-else). Ubica un punto (x,y) en un cuadrante (1,2,3,4) o en los ejes (0).
+
+main
+{
+// Declaraciones
+
+    int x, y,z;
+
+// Sentencias
+
+	scanf x;
+	scanf y;
+	
+	if ((x==0)||(y==0)) 
+	{
+		z = 0;
+		printf z;
+	}
+
+	if ((x>0)&&(y>0)) 
+	{
+		z = 1;
+		printf z;
+	}
+
+	if ((x<0)&&(y>0)) 
+	{
+		z = 2;
+		printf z;
+	}
+
+	if ((x<0)&&(y<0)) 
+	{
+		z = 3;
+		printf z;
+	}
+
+	if ((x>0)&&(y<0)) 
+	{
+		z = 4;
+		printf z;
+	}
+}

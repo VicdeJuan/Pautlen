@@ -1,0 +1,62 @@
+
+// ESTE PROGRAMA DEBE DEVOLVER VARIAS VECES EL MISMO VALOR. SEGUN LA ENTRADA (t/f)
+// SERA 45 O 32. ESTARA MAL SI DEVUELVE LOS DOS. PRUEBA TIPOS DE FUNC Y VISIBILIDAD DE GLOBALES
+
+main {
+	int res;
+	boolean cond;
+	
+	function int f1() {
+		int a, b;
+		a = 45;
+		b = 32;
+		if (cond) {
+			return a;
+		} else {
+			return b;
+		}
+	}
+	
+	function int f2(boolean cond) {
+		int a, b;
+		a = 45;
+		b = 32;
+		if (cond) {
+			return a;
+		} else {
+			return b;
+		}
+	}
+	
+	function int f3() {
+		cond = !cond;
+		return 1;
+	}
+	
+	scanf cond;
+	
+	printf f1();
+	printf f2(cond);
+	if (cond) {
+		printf f2(true);
+	} else {
+		printf f2(false);
+	}
+	
+	// se invierte cond
+	cond = !cond;
+	
+	printf f2(!!!cond);
+	
+	// se invierte de nuevo
+	res = f3();
+	
+	printf f1();
+	printf f2(cond);
+	if (cond) {
+		printf f2(true);
+	} else {
+		printf f2(false);
+	}
+
+}
