@@ -20,7 +20,7 @@ BISON_FILE := alfa.y
 FLEX_FILE := alfa.l
 
 
-EXECUTABLE = pruebaSeman
+EXECUTABLE = alfa
 
 
 GROUP = 1401

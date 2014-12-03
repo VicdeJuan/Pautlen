@@ -11,17 +11,16 @@
 #define JUMP "\n"
 #define SPACE "        "
 
+extern FILE * yyin;
+extern FILE * yyout;
 
 int main(int argc, char const *argv[])
 {
 	int ret_yyparse = -1;
 	/* Close files and free memory used. */
-	printf("Ola k ase\n");
-
-	if (ret_yyparse  == -1)
-	{
-		printf("Antes\n");
-		printf("Despues\n");
-	}
+	yyin = fopen(argv[1],"r");
+	yyout = stderr;
+	//yyout = fopen(argv[2],"w");
+	fprintf(stderr, "\n\n\n\n\t\t\tFichero %s\n", argv[1]);
 	yyparse();
 }

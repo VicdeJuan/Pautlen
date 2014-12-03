@@ -69,7 +69,13 @@
 
 #define GET_STR_FROM_TYPE(d1) d1 == INT ? "INT" : "BOOLEAN"
 
-#define CHECK_SAME_TYPES(dd,d1,d3)  if (d1.tipo == d3.tipo && d1.es_direccion == d3.es_direccion){ dd.tipo = d1.tipo; dd.es_direccion = d1.es_direccion; } else{  sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,GET_STR_FROM_TYPE(d1.tipo), GET_STR_FROM_TYPE(d3.tipo)); print_sem_error(err_msg); }
+#define CHECK_SAME_TYPES(dd,d1,d3)  if (d1.tipo == d3.tipo ){\
+		 dd.tipo = d1.tipo;\
+		 dd.es_direccion = d1.es_direccion;\
+		 }else{\
+		 sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,GET_STR_FROM_TYPE(d1.tipo), GET_STR_FROM_TYPE(d3.tipo));\
+		 print_sem_error(err_msg); \
+		}
 
 
 #define CHECK_IS_VARIABLE(d1) if (sim->symbol_type != VARIABLE){sprintf(err_msg,SEM_ERROR_NOT_VARIABLE,d1);print_sem_error(err_msg);}

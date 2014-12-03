@@ -11,8 +11,8 @@
 
 	void print_sem_error(char * msg){
 		fprintf(ERROR_IFACE_SEMAN,"****Error semático en [lin %d] debido a : %s\n",line,msg); 
+		exit(-1);
 	//free(msg);
-		return;
 	}
 
 	void yyerror(char* s){
@@ -175,6 +175,7 @@
 			sprintf(err_msg, SEM_ERROR_VECTOR_SIZE);
 			print_sem_error(err_msg);
 		}
+
 	}
 	;
 	identificadores : identificador  { fprintf(logfile,";R18:	<identificadores> ::= <identificador>\n"); }
@@ -254,8 +255,9 @@
 		fprintf(logfile,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_NOT_DEFINED($2)
+		CHECK_IDENT_DEFINED($2)
 		else{
+			sim->variable_type = tipo_actual;
 			tipo_actual = NONE;
 		}
 
@@ -265,7 +267,7 @@
 	|  { fprintf(logfile,";R29:	<declaraciones_funcion> ::= \n"); }
 	;
 	sentencias : sentencia  { fprintf(logfile,";R30:	<sentencias> ::= <sentencia>\n"); $$.hay_retorno = $1.hay_retorno;}
-	| sentencia sentencias  { fprintf(logfile,";R31:	<sentencias> ::= <sentencia> <sentencias>\n"); $$.hay_retorno = $1.hay_retorno && $2.hay_retorno;}
+	| sentencia sentencias  { fprintf(logfile,";R31:	<sentencias> ::= <sentencia> <sentencias>\n"); $$.hay_retorno = $1.hay_retorno || $2.hay_retorno;}
 	;
 	sentencia : sentencia_simple ';'  { fprintf(logfile,";R32:	<sentencia> ::= <sentencia_simple> ;\n"); $$.hay_retorno = $1.hay_retorno; }
 	| bloque  { fprintf(logfile,";R33:	<sentencia> ::= <bloque>\n"); $$.hay_retorno = 0; }
@@ -275,7 +277,7 @@
 	| escritura { fprintf(logfile,";R36:	<sentencia_simple> ::= <escritura>\n"); $$.hay_retorno = 0;}
 	| retorno_funcion  { fprintf(logfile,";R38:	<sentencia_simple> ::= <retorno_funcion>\n"); $$.hay_retorno = 1; }
 	;
-	bloque : condicional  { fprintf(logfile,";R40:	<bloque> ::= <condicional>\n"); }
+	bloque : condicional  { fprintf(logfile,";R40:	<blfoque> ::= <condicional>\n"); }
 	| bucle  { fprintf(logfile,";R41:	<bloque> ::= <bucle>\n"); }
 	;
 	asignacion : TOK_IDENTIFICADOR '=' exp  { 
@@ -307,11 +309,13 @@
 			CHECK_IS_VECTOR($1.lexema)
 			if ($3.tipo != INT){
 				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPE,GET_STR_FROM_TYPE($3.tipo));
+				print_sem_error(err_msg);
 			}
 			if (sim->data_type == $1.tipo){
 				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(sim->symbol_type),GET_STR_FROM_TYPE($1.tipo));
 				print_sem_error(err_msg);
 			}
+			$$.tipo = sim->data_type;
 		}
 	}
 	;
@@ -335,7 +339,7 @@
 		fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1)
+		CHECK_IDENT_DEFINED($2)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 			CHECK_IS_ESCALAR(sim->key);
@@ -360,12 +364,20 @@
 		CHECK_IDENT_DEFINED($1)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
-			if(tipo_retorno != $2.tipo){
-				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(tipo_retorno),GET_STR_FROM_TYPE($2.tipo));
+			if(tipo_retorno != sim->data_type){
+				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(tipo_retorno),GET_STR_FROM_TYPE(sim->data_type));
 				print_sem_error(err_msg);
 			}
 		}
-	}
+	} /*| TOK_RETURN exp {
+		fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		if(tipo_retorno != $2.tipo){
+			sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(tipo_retorno),GET_STR_FROM_TYPE($2.tipo));
+			print_sem_error(err_msg);
+		}
+
+	}*/
 	;
 	exp : exp '+' exp  { 
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
@@ -438,7 +450,8 @@
 		if (sim)
 		{
 			if (!(sim->symbol_type != FUNCTION && sim->variable_type == ESCALAR)){
-				sprintf(err_msg, SEM_ERROR_FUNCTION_NOT_ALLOWED ,$1.lexema);
+				sprintf(err_msg, SEM_ERROR_FUNCTION_NOT_ALLOWED,$1.lexema);
+				sprintf(err_msg,"%s tipo_sim: %d, tipo_var %d",err_msg,sim->symbol_type, sim->variable_type);
 				print_sem_error(err_msg);
 			}else{
 				$$.tipo = sim->data_type;
@@ -467,10 +480,10 @@
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		if (sim)
 		{
-			if (sim->num_parameter < num_parametros_llamada_actual){
+			if (sim->num_parameter > num_parametros_llamada_actual){
 				sprintf(err_msg, SEM_ERROR_NEED_MORE_PARAM ,$1.lexema,sim->num_parameter,num_parametros_llamada_actual);
 				print_sem_error(err_msg);					
-			} else if (sim->num_parameter > num_parametros_llamada_actual){
+			} else if (sim->num_parameter < num_parametros_llamada_actual){
 				sprintf(err_msg, SEM_ERROR_TOO_MUCH_PARAM ,$1.lexema,sim->num_parameter,num_parametros_llamada_actual);
 				print_sem_error(err_msg);					
 			}else{
@@ -478,6 +491,7 @@
 				en_explist = 0;
 				$$.tipo = sim->data_type;
 				$$.es_direccion = 0;
+				num_parametros_llamada_actual = 0;
 			}
 		}else{
 			sprintf(err_msg, SEM_ERROR_FATAL ,$1.lexema);
@@ -487,18 +501,18 @@
 	;
 
 	idf_llamada_funcion : TOK_IDENTIFICADOR {
-
+		fprintf(logfile, ";R108.2 <llamada a funcion> ::= identificador\n");
+		en_explist = 0;
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_NOT_DEFINED($1)
+		CHECK_IDENT_DEFINED($1)
 		else{
-			CHECK_IS_FUNCTION($1.lexema)
-			if (en_explist != 1){
+			CHECK_IS_FUNCTION(sim->key);
+			if (en_explist == 1){
 				sprintf(err_msg,SEM_ERROR_FUNCTION_NOT_ALLOWED,$1.lexema);
 				print_sem_error(err_msg);
 				num_parametros_llamada_actual = 0;
 			}
-			en_explist = 1;
 			strcpy($$.lexema,$1.lexema);
 		}
 
@@ -580,13 +594,13 @@
 	}
 
 	identificador : TOK_IDENTIFICADOR {
-		fprintf(logfile,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n"); 
+		fprintf(logfile,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n\t\t clase_actual: %s \t tipo_actual %s\n",clase_actual == ESCALAR ? "ESCALAR" : "VECTOR" ,tipo_actual == INT ? "INT" : "BOOLEAN"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_IDENT_NOT_DEFINED($1)
 		else
 		{
-			if(clase_actual == ESCALAR && ambito_actual == LOCAL){
+			if(clase_actual != ESCALAR && ambito_actual == LOCAL){
 				print_sem_error(SEM_ERROR_JUST_ESCALAR_IN_LOCAL);
 			}else{		
 				sim = malloc(sizeof(symbol));
