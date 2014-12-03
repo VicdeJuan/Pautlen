@@ -6,6 +6,7 @@
 
 #define ERROR_IFACE_SINTA stderr
 #define ERROR_IFACE_MORFO stderr
+#define ERROR_IFACE_SEMAN stderr
 
 #define NONE -1
 
@@ -35,12 +36,16 @@
 #define SEM_ERROR_NOT_DEFINED "Error semántico: %s no se encuentra definido"
 #define SEM_ERROR_VECTOR_SIZE "Error semántico: Vector demasiado grande (64 es el máximo)"
 #define SEM_ERROR_JUST_ESCALAR_IN_LOCAL "Error semántico: Sólo se pueden definir variables escalares en funciones."
+#define SEM_ERROR_MISSING_RET "Error semántico: Es obligatorio al menos un return en cada función."
 
 #define SEM_ERROR_FUNCTION_NOT_ALLOWED "Error semántico: No se permite una función (%s)."
 #define SEM_ERROR_NOT_FUNCTION "Error semántico: %s no es una función."
+#define SEM_ERROR_NOT_VECTOR "Error semántico: %s no es un vector."
+#define SEM_ERROR_NOT_ESCALAR "Error semántico: %s no es escalar."
+#define SEM_ERROR_NOT_VARIABLE "Error semántico: %s no es una variable."
 
-#define SEM_ERROR_INCOMPATIBLE_TYPES "Error semántico: Tipos incompatibles (%s) y (%s) [expected INT, INT]."
-#define SEM_ERROR_INCOMPATIBLE_TYPE "Error semántico: Tipo incompatible (%s) [expected INT]"
+#define SEM_ERROR_INCOMPATIBLE_TYPES "Error semántico: Tipos incompatibles (%s) y (%s)."
+#define SEM_ERROR_INCOMPATIBLE_TYPE "Error semántico: Tipo incompatible (%s) "
 
 
 #define SEM_ERROR_NEED_MORE_PARAM "Insuficientes paramatros en (%s). Esperados: %d, recibidos: %d"
@@ -52,19 +57,30 @@
 
 
 
-#define CHECK_BOOLEAN_TYPES(dd,d1,d3) if (d1.tipo == BOOLEAN && d3.tipo == BOOLEAN){ dd.tipo = BOOLEAN; dd.es_direccion = 0;}else{char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,d1.tipo==BOOLEAN ? "BOOLEAN" : "INT", d3.tipo == BOOLEAN ? "BOOLEAN" : "INT");print_sem_error(err_msg);free(err_msg);}
-#define CHECK_BOOLEAN_TYPE(dd,d2) if (d2.tipo == BOOLEAN){ dd.tipo = BOOLEAN; dd.es_direccion = 0;}else{char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPE ,d2.tipo==BOOLEAN ? "BOOLEAN" : "INT");print_sem_error(err_msg);free(err_msg);}
+#define CHECK_BOOLEAN_TYPES(dd,d1,d3)  if (d1.tipo == BOOLEAN && d3.tipo == BOOLEAN){ dd.tipo = BOOLEAN; dd.es_direccion = 0;}else{sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,GET_STR_FROM_TYPE(d3.tipo),GET_STR_FROM_TYPE(d3.tipo));print_sem_error(err_msg);}
+#define CHECK_BOOLEAN_TYPE(dd,d2)  if (d2.tipo == BOOLEAN){ dd.tipo = BOOLEAN; dd.es_direccion = 0;}else{sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPE ,d2.tipo==BOOLEAN ? "BOOLEAN" : "INT");print_sem_error(err_msg);free(err_msg);}
 
-#define CHECK_INT_TYPES(dd,d1,d3) if (d1.tipo == INT && d3.tipo == INT){ dd.tipo = INT; dd.es_direccion = 0;}else{char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,d1.tipo==INT ? "INT" : "BOOLEAN", d3.tipo == INT ? "INT" : "BOOLEAN");print_sem_error(err_msg);free(err_msg);}
-#define CHECK_INT_TYPE(dd,d2) if (d2.tipo == INT){ dd.tipo = INT; dd.es_direccion = 0;}else{char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPE ,d2.tipo==INT ? "INT" : "BOOLEAN");print_sem_error(err_msg);free(err_msg);}
-
-
-#define CHECK_IDENT_DEFINED(d1) symbol * sim = search_symbol(tabla,$.lexema,ambito_actual); if (!sim){	char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));	sprintf(err_msg, SEM_ERROR_NOT_DEFINED ,d1.lexema);	print_sem_error(err_msg);free(err_msg);}
-#define CHECK_IDENT_NOT_DEFINED(d1) symbol * sim = search_symbol(tabla,$.lexema,ambito_actual); if (sim){	char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));	sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,d1.lexema);	print_sem_error(err_msg);free(err_msg);}
+#define CHECK_INT_TYPES(dd,d1,d3)  if (d1.tipo == INT && d3.tipo == INT){ dd.tipo = INT; dd.es_direccion = 0;}else{sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,GET_STR_FROM_TYPE(d1.tipo), GET_STR_FROM_TYPE(d3.tipo));print_sem_error(err_msg);}
+#define CHECK_INT_TYPE(dd,d2)  if (d2.tipo == INT){ dd.tipo = INT; dd.es_direccion = 0;}else{sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPE ,GET_STR_FROM_TYPE(d2.tipo));print_sem_error(err_msg);free(err_msg);}
 
 
+#define CHECK_IDENT_DEFINED(d1) sim = search_symbol(tabla,d1.lexema,ambito_actual);  if (!sim){sprintf(err_msg, SEM_ERROR_NOT_DEFINED ,d1.lexema);	print_sem_error(err_msg);free(err_msg);}
+#define CHECK_IDENT_NOT_DEFINED(d1) sim = search_symbol(tabla,d1.lexema,ambito_actual);  if (sim){sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,d1.lexema);	print_sem_error(err_msg);free(err_msg);}
 
-#define CHECK_SAME_TYPES "if ($1.tipo == $3.tipo && $1.es_direccion == $3.es_direccion){ $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion; } else{ char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char)); sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,$1.tipo == INT ? \"INT\" : \"BOOLEAN\", $3.tipo == INT ? \"INT\" : \"BOOLEAN\"); print_sem_error(err_msg); free(err_msg); }"
+#define GET_STR_FROM_TYPE(d1) d1 == INT ? "INT" : "BOOLEAN"
+
+#define CHECK_SAME_TYPES(dd,d1,d3)  if (d1.tipo == d3.tipo && d1.es_direccion == d3.es_direccion){ dd.tipo = d1.tipo; dd.es_direccion = d1.es_direccion; } else{  sprintf(err_msg, SEM_ERROR_INCOMPATIBLE_TYPES ,GET_STR_FROM_TYPE(d1.tipo), GET_STR_FROM_TYPE(d3.tipo)); print_sem_error(err_msg); }
+
+
+#define CHECK_IS_VARIABLE(d1) if (sim->symbol_type != VARIABLE){sprintf(err_msg,SEM_ERROR_NOT_VARIABLE,d1);print_sem_error(err_msg);}
+#define CHECK_IS_FUNCTION(d1) if (sim->symbol_type != FUNCTION){sprintf(err_msg,SEM_ERROR_NOT_FUNCTION,d1);print_sem_error(err_msg);}
+#define CHECK_IS_VECTOR(d1) if (sim->variable_type != VECTOR){sprintf(err_msg,SEM_ERROR_NOT_VECTOR,d1);print_sem_error(err_msg);}
+#define CHECK_IS_ESCALAR(d1) if (sim->variable_type != ESCALAR){sprintf(err_msg,SEM_ERROR_NOT_ESCALAR,d1);print_sem_error(err_msg);}
+
+#define CHECK_IS_NOT_VARIABLE(d1) if (sim->symbol_type == VARIABLE){sprintf(err_msg,SEM_ERROR_NOT_VARIABLE,d1);print_sem_error(err_msg);}
+#define CHECK_IS_NOT_FUNCTION(d1) if (sim->symbol_type == FUNCTION){sprintf(err_msg,SEM_ERROR_NOT_FUNCTION,d1);print_sem_error(err_msg);}
+#define CHECK_IS_NOT_VECTOR(d1) if (sim->variable_type == VECTOR){sprintf(err_msg,SEM_ERROR_NOT_VECTOR,d1);print_sem_error(err_msg);}
+#define CHECK_IS_NOT_ESCALAR(d1) if (sim->variable_type == ESCALAR){sprintf(err_msg,SEM_ERROR_NOT_ESCALAR,d1);print_sem_error(err_msg);}
 
 typedef struct{
 	char lexema[MAX_LONG_ID+1];
@@ -72,6 +88,7 @@ typedef struct{
 	int valor_entero;
 	int es_direccion;
 	int etiqueta;
+	int hay_retorno;
 }tipo_atributos;
 
 /*typedef struct {
@@ -98,7 +115,7 @@ typedef struct{
 
 	}
 	else{
-		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		
 		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
 		print_sem_error(err_msg);
 		free(err_msg);
