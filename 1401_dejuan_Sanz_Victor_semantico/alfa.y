@@ -13,6 +13,7 @@
 	int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
 	int en_explist,num_parametros_llamada_actual,tipo_retorno;
 /** Ya escrita su inicialización */
+	int tag_num;
 	symbol_table * tabla;
 	FILE * logfile;
 	FILE * nasm_file;
@@ -142,6 +143,7 @@
 		num_variables_locales_actual = 0;
 		pos_parametro_actual = 0;
 		num_parametro_actual = 0;
+		tag_num = 0;
 
 		/* Inicializamos otras variables.*/
 		nasm_file = fopen(NASM_FILE_NAME,"w");
@@ -310,7 +312,9 @@
 				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(sim->data_type),GET_STR_FROM_TYPE($3.tipo));
 				print_sem_error(err_msg);
 			}
-			CHECK_IS_ESCALAR($1.lexema);
+			CHECK_IS_ESCALAR($1.lexema)
+
+			write_assing(nasm_file,$1.lexema,$3.es_direccion,0);
 		}
 		free(err_msg);	
 
@@ -319,6 +323,8 @@
 		fprintf(logfile,";R44:	<asignacion> ::= <elemento_vector> = <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_SAME_TYPES($$,$1,$3)
+
+		write_assing(nasm_file,$1.lexema,$3.es_direccion,1);
 		free(err_msg);	
 
 	}
@@ -339,6 +345,7 @@
 				print_sem_error(err_msg);
 			}
 			$$.tipo = sim->data_type;
+			write_load_vector_element(nasm_file,$1.lexema);
 		}
 		free(err_msg);	
 	}
@@ -416,6 +423,7 @@
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_expression(nasm_file,'+',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
 	}
@@ -423,6 +431,7 @@
 		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_expression(nasm_file,'-',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
 	}
@@ -430,6 +439,7 @@
 		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_expression(nasm_file,'/',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
 	}
@@ -437,6 +447,7 @@
 		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_expression(nasm_file,'*',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
 	}
@@ -444,6 +455,7 @@
 		fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPE($$,$2);
+		write_neg_expression(nasm_file,$2.es_direccion,0);
 		free(err_msg);	
 
 
@@ -452,6 +464,7 @@
 		fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPES($$,$1,$3);
+		write_expression(nasm_file,'&',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
 
@@ -460,6 +473,7 @@
 		fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPES($$,$1,$3);
+		write_expression(nasm_file,'|',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
 
@@ -468,6 +482,7 @@
 		fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$2);
+		write_neg_expression(nasm_file,$2.es_direccion,1);
 		free(err_msg);	
 
 
@@ -626,16 +641,14 @@
 			fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n");
 			$$.tipo = BOOLEAN;
 			$$.es_direccion = 0;
-			fprintf(fichero_ensamblador, "; numero_linea %d\n", numero_linea);
-			fprintf(fichero_ensamblador, "\tpush dword %d\n", TRUE_ASM);
+			_write_cte(nasm_file,TRUE_ASM,line);
 
 	}
 	| TOK_FALSE {
 		fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); 
 		$$.tipo = BOOLEAN; 
 		$$.es_direccion = 0;
-		fprintf(fichero_ensamblador, "; numero_linea %d\n", numero_linea);
-		fprintf(fichero_ensamblador, "\tpush dword %d\n", FALSE_ASM);
+		_write_cte(nasm_file,FALSE_ASM,line);
 
 	}
 	;
@@ -643,8 +656,7 @@
 		fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); 
 		$$.tipo = INT; 
 		$$.es_direccion = 0;
-		fprintf(fichero_ensamblador, "; numero_linea %d\n", numero_linea);
-		fprintf(fichero_ensamblador, "\tpush dword %d\n", $1.valor_entero);
+		_write_cte(nasm_file,$1.valor_entero,line);
 
 	}
 	;

@@ -8,6 +8,18 @@
 #define TRUE_ASM 1
 #define FALSE_ASM 0
 
+#define CMP_IGUAL 1
+#define CMP_DISTINTO 2
+#define CMP_MENORIGUAL 3
+#define CMP_MAYORIGUAL 4
+#define CMP_MENOR 5
+#define CMP_MAYOR 6
+
+
+extern int tag_num;
+#define EXE_ERROR_RANGE "error_1"
+#define EXE_ERROR_ZERO "error_2"
+
 /**
  * Write one symbol
  * @param  key          Symbol's lexem
@@ -34,4 +46,38 @@ int declare_global_variables(FILE * nasm_file,symbol_table * tabla);
  * @param nasm_file File to write into.
  */
 void write_execute_errors(FILE * nasm_file);
+
+/**
+ * Writes nasm code for operations	
+ * @param nasm_file File to write into.
+ * @param operation Character indicating operation to generate code for . +,-,*,/,& (and),| (or).
+ * @param direccion Whether is a direction or not the operators. 1 if first is memory direction, 2 if second and 3 if both.
+ */
+void write_expression(FILE * nasm_file, char operation,int direccion);
+
+/**
+ * Writes nasm code for operations
+ * @param nasm_file  File to write into.
+ * @param operation Boolean. True if  is logic, false if aritmetic
+ * @param direccion Whether the operand is memory direcction or not.
+ */
+void write_neg_expression(FILE * nasm_file,int direccion,int logic);
+
+/**
+ * Writes nasm code for loading vector element.
+ * @param nasm_file File to write into.
+ * @param name      Vector's name.	
+ */
+void write_load_vector_element(FILE * nasm_file, char * name);
+
+
+/**
+ * Writes nasm code for assignments.
+ * @param nasm_file File to write into.
+ * @param name      Name.	
+ * @param direccion Whether the operand is memory direcction or not.
+ * @param name      Whether is a vector or not.	
+ */
+void write_assign(FILE * nasm_file,char * name,int direccion,int vector);
+
 #endif
