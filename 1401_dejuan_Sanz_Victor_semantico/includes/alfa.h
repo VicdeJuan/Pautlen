@@ -30,7 +30,7 @@
 
 #define MAX_LONG_ID 100
  
-
+#define NASM_FILE_NAME "alfa.asm"
 
 #define SEM_ERROR_ALREADY_DEF "Error semántico: %s ya se encuentra definido"
 #define SEM_ERROR_NOT_DEFINED "Error semántico: %s no se encuentra definido"

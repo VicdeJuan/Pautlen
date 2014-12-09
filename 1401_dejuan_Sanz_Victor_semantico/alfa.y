@@ -4,22 +4,9 @@
 	#include <string.h>
 	#include "alfa.h"
 	#include "lex.yy.h"
-	#include "symbol_table.h"
+	#include "code_generator.h"
 
 	extern int column,line,error;
-
-
-	void print_sem_error(char * msg){
-		fprintf(ERROR_IFACE_SEMAN,"****Error semático en [lin %d] debido a : %s\n",line,msg); 
-		exit(-1);
-	//free(msg);
-	}
-
-	void yyerror(char* s){
-		if (error == 0)
-			fprintf(ERROR_IFACE_SINTA,"****Error sintáctico en [lin %d, col %d]\n",line,column); 
-		return;
-	}
 
 /** A inicializar */
 	int clase_actual, tipo_actual,ambito_actual,tamanio_vector_actual;
@@ -28,6 +15,22 @@
 /** Ya escrita su inicialización */
 	symbol_table * tabla;
 	FILE * logfile;
+	FILE * nasm_file;
+	FILE * aux_nasm_file;
+
+	void print_sem_error(char * msg){
+		fprintf(ERROR_IFACE_SEMAN,"****Error semático en [lin %d] debido a : %s\n",line,msg); 
+		free(msg);
+		delete_symbol_table(tabla);
+		exit(-1);
+	}
+
+	void yyerror(char* s){
+		if (error == 0)
+			fprintf(ERROR_IFACE_SINTA,"****Error sintáctico en [lin %d, col %d]\n",line,column); 
+		return;
+	}
+
 
 	%}
 
@@ -117,10 +120,18 @@
 	%start programa
 
 	%%
-	programa : inicioTabla main '{' declaraciones funciones sentencias '}' { fprintf(logfile,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+	programa : inicializacion main '{' declaraciones escritura_TS funciones sentencias '}' { fprintf(logfile,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
 	;
-
-	inicioTabla: {
+	/* write_execute_errors*/
+	escritura_TS : {
+		if (declare_global_variables(nasm_file,tabla) == ERR){
+			fprintf(logfile, "No se ha podido iniciar la generación de código.\n");
+		}
+		
+	}
+	;
+	inicializacion : {
+		/* Inicializamos la tabla */
 		tabla = create_symbol_table();
 		logfile = stderr;
 		clase_actual = NONE;
@@ -131,6 +142,10 @@
 		num_variables_locales_actual = 0;
 		pos_parametro_actual = 0;
 		num_parametro_actual = 0;
+
+		/* Inicializamos otras variables.*/
+		nasm_file = fopen(NASM_FILE_NAME,"w");
+
 	}
 	;
 
@@ -212,7 +227,8 @@
 			pos_parametro_actual = 0;
 			tipo_retorno = tipo_actual;
 			tipo_actual = NONE;
-			strcpy($$.lexema,$3.lexema);	
+			strcpy($$.lexema,$3.lexema);
+			free(err_msg);	
 		}	
 	}
 	;
@@ -242,6 +258,8 @@
 			sprintf(err_msg,SEM_ERROR_MISSING_RET);
 			print_sem_error(err_msg);			
 		}
+		free(err_msg);	
+
 
 	}
 
@@ -259,6 +277,7 @@
 		else{
 			sim->variable_type = tipo_actual;
 			tipo_actual = NONE;
+			free(err_msg);	
 		}
 
 	}
@@ -293,11 +312,15 @@
 			}
 			CHECK_IS_ESCALAR($1.lexema);
 		}
+		free(err_msg);	
+
 	}
 	| elemento_vector '=' exp { 
 		fprintf(logfile,";R44:	<asignacion> ::= <elemento_vector> = <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_SAME_TYPES($$,$1,$3)
+		free(err_msg);	
+
 	}
 	;
 	elemento_vector : TOK_IDENTIFICADOR '[' exp ']'  { 
@@ -317,6 +340,7 @@
 			}
 			$$.tipo = sim->data_type;
 		}
+		free(err_msg);	
 	}
 	;
 	condicional : if_exp '{' sentencias '}'  { fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); }
@@ -326,13 +350,16 @@
 	if_exp :  TOK_IF  '(' exp ')' {
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
-		}
+		free(err_msg);	
+	}
 	;
 	bucle : while_exp '{' sentencias '}'  { fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
 	;
 	while_exp : TOK_WHILE '(' exp ')' { 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
+		free(err_msg);	
+
 	}
 	;
 	lectura : TOK_SCANF TOK_IDENTIFICADOR  { 
@@ -345,6 +372,8 @@
 			CHECK_IS_ESCALAR(sim->key);
 
 		}
+		free(err_msg);	
+
 	}
 	;
 	escritura : TOK_PRINTF TOK_IDENTIFICADOR { 
@@ -355,6 +384,8 @@
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 		}
+		free(err_msg);	
+
 	}
 	;
 	retorno_funcion : TOK_RETURN TOK_IDENTIFICADOR  { 
@@ -369,6 +400,8 @@
 				print_sem_error(err_msg);
 			}
 		}
+		free(err_msg);	
+
 	} /*| TOK_RETURN exp {
 		fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
@@ -383,48 +416,60 @@
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		free(err_msg);	
 
 	}
 	| exp '-' exp  { 
 		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		free(err_msg);	
 
 	}
 	| exp '/' exp  { 
 		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		free(err_msg);	
 
 	}
 	| exp '*' exp  { 
 		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		free(err_msg);	
 
 	}
 	| '-' exp  { 
 		fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPE($$,$2);
+		free(err_msg);	
+
 
 	}
 	| exp TOK_AND exp  { 
 		fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPES($$,$1,$3);
+		free(err_msg);	
+
 
 	}
 	| exp TOK_OR exp  { 
 		fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPES($$,$1,$3);
+		free(err_msg);	
+
 
 	}
 	| '!' exp  { 
 		fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$2);
+		free(err_msg);	
+
 
 	}
 	| '(' exp ')'  { 
@@ -443,6 +488,7 @@
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		if (ambito_actual == LOCAL){
 			sim = search_symbol(tabla,$1.lexema,ambito_actual);
+
 			if (!sim)
 				sim = search_symbol(tabla,$1.lexema,GLOBAL);
 		}else
@@ -462,6 +508,8 @@
 			sprintf(err_msg, SEM_ERROR_NOT_DEFINED ,$1.lexema);
 			print_sem_error(err_msg);
 		}
+		free(err_msg);	
+
 	}
 	| constante  { 
 		fprintf(logfile,";R81:	<exp> ::= <constante>\n"); 
@@ -497,6 +545,8 @@
 			sprintf(err_msg, SEM_ERROR_FATAL ,$1.lexema);
 			print_sem_error(err_msg);
 		}
+		free(err_msg);	
+
 	}
 	;
 
@@ -515,6 +565,7 @@
 			}
 			strcpy($$.lexema,$1.lexema);
 		}
+		free(err_msg);	
 
 	}
 	;
@@ -526,43 +577,76 @@
 	|  {/*vacia*/} { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= \n"); }
 	;
 	comparacion : exp TOK_IGUAL exp  { 
-		fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN;	
+		free(err_msg);
 	}
 	| exp TOK_DISTINTO exp  { 
-		fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
+		free(err_msg);
 	}
 	| exp TOK_MENORIGUAL exp  { 
-		fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
+		free(err_msg);
 	}
 	| exp TOK_MAYORIGUAL exp  { 
-		fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
+		free(err_msg);
 	}
 	| exp '<' exp  { 
-		fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
+		free(err_msg);
 	}
 	| exp '>' exp  { 
-		fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); 
+		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
+		free(err_msg);
 	}
 	;
 	constante : constante_logica  { fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
 	| constante_entera  { fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n");  $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
 	;
-	constante_logica : TOK_TRUE  { fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n");$$.tipo = BOOLEAN; $$.es_direccion = 0;}
-	| TOK_FALSE { fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); $$.tipo = BOOLEAN; $$.es_direccion = 0;}
+	constante_logica : TOK_TRUE  {
+			fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n");
+			$$.tipo = BOOLEAN;
+			$$.es_direccion = 0;
+			fprintf(fichero_ensamblador, "; numero_linea %d\n", numero_linea);
+			fprintf(fichero_ensamblador, "\tpush dword %d\n", TRUE_ASM);
+
+	}
+	| TOK_FALSE {
+		fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); 
+		$$.tipo = BOOLEAN; 
+		$$.es_direccion = 0;
+		fprintf(fichero_ensamblador, "; numero_linea %d\n", numero_linea);
+		fprintf(fichero_ensamblador, "\tpush dword %d\n", FALSE_ASM);
+
+	}
 	;
-	constante_entera : TOK_CONSTANTE_ENTERA { fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); $$.tipo = INT; $$.es_direccion = 0;}
+	constante_entera : TOK_CONSTANTE_ENTERA {
+		fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); 
+		$$.tipo = INT; 
+		$$.es_direccion = 0;
+		fprintf(fichero_ensamblador, "; numero_linea %d\n", numero_linea);
+		fprintf(fichero_ensamblador, "\tpush dword %d\n", $1.valor_entero);
+
+	}
 	;
 
 	idpf : TOK_IDENTIFICADOR {
@@ -619,7 +703,7 @@
 				}
 			}
 		}
-
+		free(err_msg);
 	}
 	; 
 

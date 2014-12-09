@@ -5,6 +5,7 @@
 
 #include "symbol_table.h"
 #include "y.tab.h"
+#include "lex.yy.h"
 
 #define MAX 150
 
@@ -16,7 +17,6 @@ extern FILE * yyout;
 
 int main(int argc, char const *argv[])
 {
-	int ret_yyparse = -1;
 	/* Close files and free memory used. */
 	yyin = fopen(argv[1],"r");
 	yyout = stderr;

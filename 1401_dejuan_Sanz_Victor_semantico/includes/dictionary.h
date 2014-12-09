@@ -116,7 +116,7 @@ void dic_destroy(dictionary* dic, destructor dc);
  * Iterate through each element of the dictionary.
  * @param  dic          Dictionary
  * @param  action       Action to execute.
- * @param  pass_through Pass through for the action.
+ * @param  pass_through Pass through (argument) for the action. 
  * @return              OK/ERR
  */
 int dic_iterate(dictionary* dic, iterator_action action, void* pass_through);
