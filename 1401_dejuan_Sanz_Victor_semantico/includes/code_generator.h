@@ -80,4 +80,21 @@ void write_load_vector_element(FILE * nasm_file, char * name);
  */
 void write_assign(FILE * nasm_file,char * name,int direccion,int vector);
 
+/**
+ * 
+ * @param nasm_file 
+ * @param name      
+ * @param integer   true if it's an integer, false if bool
+ */
+void write_scanf(FILE * nasm_file, char * name, int integer);
+
+/**
+ * 
+ * @param nasm_file 
+ * @param name      
+ * @param integer   true if it's an integer, false if bool
+ */
+void write_printf(FILE * nasm_file,char * name, int es_direccion,int integer);
+
+
 #endif

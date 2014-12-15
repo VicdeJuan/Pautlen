@@ -110,8 +110,23 @@ execs=(
 		 "test/exe/funcanid4"
 		 "test/exe/sort"
 	    )
-for i in {0..32}
+
+inputs_check=( 
+		 "test/alfa/ej_aritmeticas1.alf"
+		 "test/alfa/ej_aritmeticas2.alf"
+		 "test/alfa/ej_bucles.alf"
+		 "test/alfa/ej_especifico1.alf"
+		 "test/alfa/ej_especifico2.alf"
+		 "test/alfa/ej_especifico3.alf"
+		 "test/alfa/ej_funciones1.alf"
+		 "test/alfa/ej_funciones2.alf"
+		 "test/alfa/ej_ifs.alf"
+		 "test/alfa/ej_logicas.alf"
+		 "test/alfa/error_ej1.alf"
+		 "test/alfa/error_ej2.alf"
+)
+for i in {0..11}
 do
-	echo "File"${inputs[$i]} >> errores
-	./alfa ${inputs[$i]} ${outputs[$i]}
+	#./autoCompiler ${inputs[$i]} ${execs[$i]}
+	./alfa ${inputs_check[$i]} ${outputs[$i]}
 done

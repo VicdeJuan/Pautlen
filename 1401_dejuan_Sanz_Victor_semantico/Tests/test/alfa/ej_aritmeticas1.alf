@@ -6,29 +6,23 @@ main
 // Declaraciones
 
     int x, y;
-	int z;
 
     v[0] = 1;
+    printf v[0];
 // Sentencias
 
 	scanf x;
 	scanf y;
 
-	z = x+y;
+	printf x+y;
 
-	printf z;
+	printf x-y;
 
-	z = x-y;
-	printf z;
+	printf x*y;
 
-	z = x*y;
-	printf z;
+	printf x/y;
 
-	z = x/y;
-	printf z;
-
-	z=-x;
-	printf z;
+	printf -x;
 
 
 }

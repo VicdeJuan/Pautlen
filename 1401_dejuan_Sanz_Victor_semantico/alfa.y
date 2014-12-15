@@ -20,7 +20,7 @@
 	FILE * aux_nasm_file;
 
 	void print_sem_error(char * msg){
-		fprintf(ERROR_IFACE_SEMAN,"****Error semático en [lin %d] debido a : %s\n",line,msg); 
+		fprintf(ERROR_IFACE_SEMAN,"\t****Error semático en [lin %d] debido a : %s\n",line,msg); 
 		free(msg);
 		delete_symbol_table(tabla);
 		exit(-1);
@@ -28,7 +28,7 @@
 
 	void yyerror(char* s){
 		if (error == 0)
-			fprintf(ERROR_IFACE_SINTA,"****Error sintáctico en [lin %d, col %d]\n",line,column); 
+			fprintf(ERROR_IFACE_SINTA,"\t****Error sintáctico en [lin %d, col %d]\n",line,column); 
 		return;
 	}
 
@@ -134,7 +134,7 @@
 	inicializacion : {
 		/* Inicializamos la tabla */
 		tabla = create_symbol_table();
-		logfile = stderr;
+		logfile = fopen("log","w");
 		clase_actual = NONE;
 		tipo_actual = NONE;
 		ambito_actual = NONE;
@@ -186,7 +186,7 @@
 	clase_vector : TOK_ARRAY tipo '[' constante_entera  ']' {
 		fprintf(logfile,";R15:	<clase_vector> ::= array <tipo> [ <constante_entera>  ]\n"); 
 		tamanio_vector_actual = $4.valor_entero;
-		if ((tamanio_vector_actual < 1) || (tamanio_vector_actual >= MAX_TAMANIO_VECTOR))
+		if ((tamanio_vector_actual < 1) || (tamanio_vector_actual > MAX_TAMANIO_VECTOR))
 		{
 			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 			sprintf(err_msg, SEM_ERROR_VECTOR_SIZE);
@@ -314,7 +314,7 @@
 			}
 			CHECK_IS_ESCALAR($1.lexema)
 
-			write_assing(nasm_file,$1.lexema,$3.es_direccion,0);
+			write_assign(nasm_file,$1.lexema,$3.es_direccion,0);
 		}
 		free(err_msg);	
 
@@ -324,7 +324,7 @@
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_SAME_TYPES($$,$1,$3)
 
-		write_assing(nasm_file,$1.lexema,$3.es_direccion,1);
+		write_assign(nasm_file,$1.lexema,$3.es_direccion,1);
 		free(err_msg);	
 
 	}
@@ -350,16 +350,26 @@
 		free(err_msg);	
 	}
 	;
-	condicional : if_exp '{' sentencias '}'  { fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); }
-	| if_exp '{' sentencias '}' TOK_ELSE '{' sentencias '}'  { fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
+	condicional : if_exp '{' sentencias '}'  {
+		fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); 
+		write_if_exp__end(nasm_file,$1.etiqueta);
+	}
+	| if_exp_sentencias TOK_ELSE '{' sentencias '}'  { fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
 	;
 
+	if_exp_sentencias : if_exp '{' sentencias '}' {
+		$$.etiqueta = $1.etiqueta;
+	}
+	;
 	if_exp :  TOK_IF  '(' exp ')' {
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
+		$$.etiqueta = tag_num++;
+		write_if_exp__begin(nasm_file,$$.etiqueta);
 		free(err_msg);	
 	}
 	;
+
 	bucle : while_exp '{' sentencias '}'  { fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
 	;
 	while_exp : TOK_WHILE '(' exp ')' { 
@@ -377,29 +387,32 @@
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 			CHECK_IS_ESCALAR(sim->key);
-
+			write_scanf(nasm_file,sim->key,sim->data_type==INT);
 		}
 		free(err_msg);	
 
 	}
 	;
-	escritura : TOK_PRINTF TOK_IDENTIFICADOR { 
+	/**debería ser un exp*/
+	escritura : TOK_PRINTF exp { 
 		fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1)
+		CHECK_IDENT_DEFINED($2)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
+			/*wtf*/
+			write_printf(nasm_file,sim->key,$2.es_direccion,sim->data_type==INT);
 		}
 		free(err_msg);	
 
 	}
 	;
-	retorno_funcion : TOK_RETURN TOK_IDENTIFICADOR  { 
+	retorno_funcion : TOK_RETURN exp  { 
 		fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1)
+		CHECK_IDENT_DEFINED($2)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 			if(tipo_retorno != sim->data_type){

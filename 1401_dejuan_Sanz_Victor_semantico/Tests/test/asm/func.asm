@@ -32,3 +32,12 @@
 ;D:	{
 ;D:	return
 ;D:	a
+;D:	;
+;D:	}
+;D:	else
+;D:	{
+;D:	return
+;D:	b
+;D:	;
+;D:	}
+;D:	}

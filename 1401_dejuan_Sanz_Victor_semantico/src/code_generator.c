@@ -241,7 +241,60 @@ void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
 		fprintf(nasm_file,"; Hacer la asignación efectiva\n");
 		fprintf(nasm_file,"mov dword [edx] , eax\n");
 	}
+}
 
-	
 
+void write_scanf(FILE * nasm_file, char * name, int integer){
+	fprintf(nasm_file, "push dword _%s\n", name);
+
+	if (integer){
+		fprintf(nasm_file, "call scan_int\n");
+	}else{
+		fprintf(nasm_file, "call scan_boolean\n");
+	}
+	fprintf(nasm_file, "add esp,4\n");
+}
+
+
+void write_printf(FILE * nasm_file,char * name, int es_direccion,int integer){
+	fprintf(nasm_file,"; Acceso al valor de exp si es distinto de constante");
+	if (es_direccion == 1){
+		fprintf(nasm_file,"pop dword eax");
+		fprintf(nasm_file,"mov dword eax , [eax]");
+		fprintf(nasm_file,"push dword eax");		
+	}
+	if (integer){		
+		fprintf(nasm_file,"; Si la expresión es de tipo entero");
+		fprintf(nasm_file,"call print_int");
+	}else{
+		fprintf(nasm_file,"; Si la expresión es de tipo lógico");
+		fprintf(nasm_file,"call print_boolean");
+	}	
+	fprintf(nasm_file,"; Restauración del puntero de pila");
+	fprintf(nasm_file,"add esp, 4");
+	fprintf(nasm_file,"; Salto de línea");
+	fprintf(nasm_file,"call print_endofnile");
+
+}
+
+void write_if_exp__begin(FILE * nasm_file,int tag){
+
+	fprintf(nasm_file,"pop eax");
+	fprintf(nasm_file,"mov eax , [eax]");
+	fprintf(nasm_file,"cmp eax, 0");
+	fprintf(nasm_file,"je near fin_si%d",tag);
+
+}
+
+void write_if_exp__end(FILE * nasm_file,int tag){
+	fprintf(nasm_file, "fin_si%d:\n", tag);
+}
+
+void write_else_exp__mid(FILE * nasm_file,int tag){
+	fprintf(nasm_file,"jmp near fin_sino%d",tag);
+	fprintf(nasm_file,"fin_si%d:",tag);
+}
+
+void write_else_exp__end(FILE * nasm_file,int tag){
+	fprintf(nasm_file, "fin_sino%d:\n", tag);
 }

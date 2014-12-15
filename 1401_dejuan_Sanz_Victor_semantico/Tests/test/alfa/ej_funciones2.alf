@@ -10,29 +10,28 @@ main
     function int fibonacci (int num1)
     {
         // Declaraciones
-  int res1, res2,c;
+  int res1, res2;
   
         if ((num1 == 0))
         {
-          c = 0;
-          return c;
+          return 0;
   }  
   if ((num1 == 1)) 
   {
-    c = 1;
-    return c;
+    return 1;
   }
   res1 = fibonacci (num1 - 1);
   res2 = fibonacci (num1 - 2);
-  c = res1 + res2;
-  return c;
+  return res1 + res2;
     }
 
 // Sentencias
 
   scanf x;
-  resultado = fibonacci(x);
-  printf resultado;
+
+  x = fibonacci(x);
+
+  printf x;
 }
 
 

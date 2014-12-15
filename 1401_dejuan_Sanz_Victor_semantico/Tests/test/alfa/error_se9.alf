@@ -12,8 +12,7 @@ main
 
     function int suma (int n1; int n2) {
     	     int z;
-    	     z = n1 + n2;
-    	     return z;
+    	     return n1 + n2;
     }
 
 

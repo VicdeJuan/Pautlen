@@ -15,12 +15,18 @@
 extern FILE * yyin;
 extern FILE * yyout;
 
+
 int main(int argc, char const *argv[])
 {
 	/* Close files and free memory used. */
 	yyin = fopen(argv[1],"r");
-	yyout = stderr;
-	//yyout = fopen(argv[2],"w");
-	fprintf(stderr, "\n\n\n\n\t\t\tFichero %s\n", argv[1]);
+	if (argc >= 2)
+		yyout = fopen(argv[2],"w");
+	else
+		yyout = stderr;
+
+	if (argc < 2)
+		fprintf(stderr, "\n\n\n\n\t\t\tFichero %s\n", argv[1]);
+
 	yyparse();
 }

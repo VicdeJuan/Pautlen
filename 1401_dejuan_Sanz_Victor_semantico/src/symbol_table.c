@@ -22,6 +22,8 @@ symbol_table *  create_symbol_table(){
 		return NULL;
 	}
 
+
+
 	ret_table->local_table = dic_new_withstr();
 	if (ret_table->local_table == NULL)
 	{

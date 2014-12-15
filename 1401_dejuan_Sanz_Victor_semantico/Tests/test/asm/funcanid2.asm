@@ -31,3 +31,17 @@
 ;D:	z
 ;D:	;
 ;D:	}
+;D:	function
+;D:	int
+;D:	resultado
+;D:	(
+;D:	int
+;D:	c
+;D:	;
+;D:	int
+;D:	d
+;D:	)
+;D:	{
+;D:	return
+;D:	suma
+;D:	(

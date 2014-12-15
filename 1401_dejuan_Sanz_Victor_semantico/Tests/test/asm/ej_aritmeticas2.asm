@@ -6,8 +6,6 @@
 ;D:	y
 ;D:	,
 ;D:	z
-;D:	,
-;D:	a
 ;D:	;
 ;D:	scanf
 ;D:	x
@@ -18,8 +16,7 @@
 ;D:	scanf
 ;D:	z
 ;D:	;
-;D:	a
-;D:	=
+;D:	printf
 ;D:	x
 ;D:	+
 ;D:	y
@@ -27,10 +24,6 @@
 ;D:	z
 ;D:	;
 ;D:	printf
-;D:	a
-;D:	;
-;D:	a
-;D:	=
 ;D:	(
 ;D:	x
 ;D:	+
@@ -40,10 +33,6 @@
 ;D:	z
 ;D:	;
 ;D:	printf
-;D:	a
-;D:	;
-;D:	a
-;D:	=
 ;D:	-
 ;D:	x
 ;D:	*
@@ -51,8 +40,5 @@
 ;D:	*
 ;D:	-
 ;D:	z
-;D:	;
-;D:	printf
-;D:	a
 ;D:	;
 ;D:	}

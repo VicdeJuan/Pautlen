@@ -4,7 +4,7 @@ main
 {
 // Declaraciones
 
-    int x, y,z;
+    int x, y;
 
 // Sentencias
 
@@ -13,31 +13,26 @@ main
 	
 	if ((x==0)||(y==0)) 
 	{
-		z = 0;
-		printf z;
+	  printf 0;
 	}
 
 	if ((x>0)&&(y>0)) 
 	{
-		z = 1;
-		printf z;
+	  printf 1;
 	}
 
 	if ((x<0)&&(y>0)) 
 	{
-		z = 2;
-		printf z;
+	  printf 2;
 	}
 
 	if ((x<0)&&(y<0)) 
 	{
-		z = 3;
-		printf z;
+	  printf 3;
 	}
 
 	if ((x>0)&&(y<0)) 
 	{
-		z = 4;
-		printf z;
+	  printf 4;
 	}
 }
