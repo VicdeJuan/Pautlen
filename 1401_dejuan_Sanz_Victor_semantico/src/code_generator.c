@@ -48,6 +48,7 @@ int declare_global_variables(FILE * nasm_file,symbol_table * tabla){
 
 
 void write_execute_errors(FILE * nasm_file){
+	fprintf(nasm_file,"jmp near fin\n");
 	fprintf(nasm_file,"%s:\n",EXE_ERROR_RANGE);
 	fprintf(nasm_file,"push dword err_msg_range\n");
 	fprintf(nasm_file,"call print_string\n");
@@ -57,7 +58,6 @@ void write_execute_errors(FILE * nasm_file){
 	fprintf(nasm_file,"push dword err_msg_zero\n");
 	fprintf(nasm_file,"call print_string\n");
 	fprintf(nasm_file,"add esp, 4\n");
-	fprintf(nasm_file,"jmp near fin\n");
 	fprintf(nasm_file,"fin: ret\n");
 
 }
@@ -126,10 +126,10 @@ void write_expression(FILE * nasm_file, char operation,int direccion){
 			fprintf(nasm_file,"idiv edx\n");
 			break;
 		case '&':
-			fprintf(nasm_file, "and eax edx\n");
+			fprintf(nasm_file, "and eax, edx\n");
 			break;
 		case '|':
-			fprintf(nasm_file, "or eax edx\n");
+			fprintf(nasm_file, "or eax, edx\n");
 			break;
 
 		default :
@@ -218,12 +218,11 @@ void _load_vector_element(FILE * nasm_file,char * name){
 	fprintf(nasm_file,"; eax = eax*edx, es decir, eax = eax*4\n");
 	fprintf(nasm_file,"imul edx\n");
 	fprintf(nasm_file,"; Cargar en edx la dirección de inicio del vector\n");
-	fprintf(nasm_file,"mov dword edx _%s\n",name);
+	fprintf(nasm_file,"mov dword edx, _%s\n",name);
 	fprintf(nasm_file,"; Cargar en eax la dirección del elemento indexado\n");
 	fprintf(nasm_file,"add eax, edx\n");
-	fprintf(nasm_file,"; Apilar la dirección del elemento indexado\n");
-	fprintf(nasm_file,"push dword eax\n");
 
+	_push_eax(nasm_file);
 }
 
 void write_load_vector_element(FILE * nasm_file, char * name){
@@ -233,14 +232,16 @@ void write_load_vector_element(FILE * nasm_file, char * name){
 void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
 	_load_1_operator(nasm_file, direccion);
 
-	if (!vector)
+	if (!vector){
 		fprintf(nasm_file, "mov dword [_%s] , eax\n",name);
+	}
 	else
 	{
 		fprintf(nasm_file,"pop dword edx\n");
 		fprintf(nasm_file,"; Hacer la asignación efectiva\n");
 		fprintf(nasm_file,"mov dword [edx] , eax\n");
 	}
+	fprintf(nasm_file, "push dword _%s\n", name);
 }
 
 
@@ -257,32 +258,33 @@ void write_scanf(FILE * nasm_file, char * name, int integer){
 
 
 void write_printf(FILE * nasm_file,char * name, int es_direccion,int integer){
-	fprintf(nasm_file,"; Acceso al valor de exp si es distinto de constante");
+	fprintf(nasm_file,"; Acceso al valor de exp si es distinto de constante\n");
 	if (es_direccion == 1){
-		fprintf(nasm_file,"pop dword eax");
-		fprintf(nasm_file,"mov dword eax , [eax]");
-		fprintf(nasm_file,"push dword eax");		
+		fprintf(nasm_file,"pop dword eax\n");
+		fprintf(nasm_file,"mov dword eax , [eax]\n");
+		fprintf(nasm_file,"push dword eax\n");		
 	}
+
 	if (integer){		
-		fprintf(nasm_file,"; Si la expresión es de tipo entero");
-		fprintf(nasm_file,"call print_int");
+		fprintf(nasm_file,"; Si la expresión es de tipo entero\n");
+		fprintf(nasm_file,"call print_int\n");
 	}else{
-		fprintf(nasm_file,"; Si la expresión es de tipo lógico");
-		fprintf(nasm_file,"call print_boolean");
+		fprintf(nasm_file,"; Si la expresión es de tipo lógico\n");
+		fprintf(nasm_file,"call print_boolean\n");
 	}	
-	fprintf(nasm_file,"; Restauración del puntero de pila");
-	fprintf(nasm_file,"add esp, 4");
-	fprintf(nasm_file,"; Salto de línea");
-	fprintf(nasm_file,"call print_endofnile");
+	fprintf(nasm_file,"; Restauración del puntero de pila\n");
+	fprintf(nasm_file,"add esp, 4\n");
+	fprintf(nasm_file,"; Salto de línea\n");
+	fprintf(nasm_file,"call print_endofline\n");
 
 }
 
 void write_if_exp__begin(FILE * nasm_file,int tag){
 
-	fprintf(nasm_file,"pop eax");
-	fprintf(nasm_file,"mov eax , [eax]");
-	fprintf(nasm_file,"cmp eax, 0");
-	fprintf(nasm_file,"je near fin_si%d",tag);
+	fprintf(nasm_file,"pop eax\n");
+	fprintf(nasm_file,"mov eax , [eax]\n");
+	fprintf(nasm_file,"cmp eax, 0\n");
+	fprintf(nasm_file,"je near fin_si%d\n",tag);
 
 }
 
@@ -291,10 +293,28 @@ void write_if_exp__end(FILE * nasm_file,int tag){
 }
 
 void write_else_exp__mid(FILE * nasm_file,int tag){
-	fprintf(nasm_file,"jmp near fin_sino%d",tag);
-	fprintf(nasm_file,"fin_si%d:",tag);
+	fprintf(nasm_file,"jmp near fin_sino%d\n",tag);
+	fprintf(nasm_file,"fin_si%d:\n",tag);
 }
 
 void write_else_exp__end(FILE * nasm_file,int tag){
 	fprintf(nasm_file, "fin_sino%d:\n", tag);
+}
+
+void write_while_exp__begin(FILE* nasm_file,int tag){
+	fprintf(nasm_file, "inicio_while%d:\n",tag);
+}
+void write_while_exp__mid(FILE * nasm_file,int tag,int es_direccion){
+	fprintf(nasm_file,"pop eax\n");
+	if (es_direccion){
+ 		fprintf(nasm_file,"; Si exp es dirección\n");
+		fprintf(nasm_file,"mov eax , [eax]\n");
+	}
+	fprintf(nasm_file,"cmp eax, 0\n");		
+	fprintf(nasm_file,"je near fin_while%d:\n",tag);
+}
+
+void write_while_exp__end(FILE* nasm_file,int tag){
+	fprintf(nasm_file,"jmp near inicio_while%d\n",tag);
+	fprintf(nasm_file,"fin_while%d:\n",tag);
 }

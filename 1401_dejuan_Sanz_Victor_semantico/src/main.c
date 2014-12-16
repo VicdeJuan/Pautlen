@@ -24,9 +24,9 @@ int main(int argc, char const *argv[])
 		yyout = fopen(argv[2],"w");
 	else
 		yyout = stderr;
-
+	
 	if (argc < 2)
 		fprintf(stderr, "\n\n\n\n\t\t\tFichero %s\n", argv[1]);
-
+	
 	yyparse();
 }

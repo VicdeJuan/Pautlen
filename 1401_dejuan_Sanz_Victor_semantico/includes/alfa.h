@@ -3,6 +3,7 @@
 
 #include "errors.h"
 
+#define LOGFILE "log"
 
 #define ERROR_IFACE_SINTA stderr
 #define ERROR_IFACE_MORFO stderr

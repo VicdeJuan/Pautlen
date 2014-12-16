@@ -30,7 +30,7 @@
  * @retval -1 Error en la ejecución (parámetros o al abrir/compilar el fichero)
  */
 int main(int argc, char* argv[]) {
-  char str[512];
+  char str[1024];
   int ctrl;
   if(argc != 3){
     printf("\nError, argumentos erroneos\n");
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   }
 
   printf("\n%s\n", argv[1]);
-  snprintf(str, 512, "./alfa %s salidaTemp.nasm", argv[1]);
+  snprintf(str, 1024, "./alfa %s salidaTemp.nasm", argv[1]);
   ctrl = system(str);
   if(ctrl != 0){
     system("rm -f objetoTemp.o salidaTemp.nasm");
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     printf("\nError al ejecutar nasm\n");
     return -1; 
   }
-  snprintf(str, 512, "gcc -o %s objetoTemp.o test/alfalib.o", argv[2]);
+  snprintf(str, 1024, "gcc -o %s objetoTemp.o test/alfalib.o", argv[2]);
   ctrl = system(str);
   if(ctrl == -1){
     system("rm -f objetoTemp.o salidaTemp.nasm");

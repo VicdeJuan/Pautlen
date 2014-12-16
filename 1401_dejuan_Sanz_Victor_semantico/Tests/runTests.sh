@@ -128,5 +128,5 @@ inputs_check=(
 for i in {0..11}
 do
 	#./autoCompiler ${inputs[$i]} ${execs[$i]}
-	./alfa ${inputs_check[$i]} ${outputs[$i]}
+	./alfa ${inputs[$i]} ${outputs[$i]}
 done

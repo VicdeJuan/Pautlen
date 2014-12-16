@@ -20,7 +20,7 @@
 	FILE * aux_nasm_file;
 
 	void print_sem_error(char * msg){
-		fprintf(ERROR_IFACE_SEMAN,"\t****Error semático en [lin %d] debido a : %s\n",line,msg); 
+		fprintf(stderr,"\t****Error semático en [lin %d] debido a : %s\n",line,msg); 
 		free(msg);
 		delete_symbol_table(tabla);
 		exit(-1);
@@ -107,6 +107,8 @@
 	%type <atributo> idf_llamada_funcion
 	%type <atributo> if_exp
 	%type <atributo> while_exp
+	%type <atributo> while
+	%type <atributo> if_exp_sentencias
 
 
 	%right '='
@@ -121,7 +123,10 @@
 	%start programa
 
 	%%
-	programa : inicializacion main '{' declaraciones escritura_TS funciones sentencias '}' { fprintf(logfile,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); }
+	programa : inicializacion main '{' declaraciones escritura_TS funciones sentencias '}' {
+		fprintf(logfile,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); 
+		write_execute_errors(nasm_file);
+	}
 	;
 	/* write_execute_errors*/
 	escritura_TS : {
@@ -134,7 +139,7 @@
 	inicializacion : {
 		/* Inicializamos la tabla */
 		tabla = create_symbol_table();
-		logfile = fopen("log","w");
+		logfile = fopen(LOGFILE,"w");
 		clase_actual = NONE;
 		tipo_actual = NONE;
 		ambito_actual = NONE;
@@ -370,13 +375,22 @@
 	}
 	;
 
-	bucle : while_exp '{' sentencias '}'  { fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); }
+	bucle : while_exp '{' sentencias '}'  {
+		fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); 
+		write_while_exp__end(nasm_file,tag_num);
+	}
 	;
-	while_exp : TOK_WHILE '(' exp ')' { 
+	while_exp : while '(' exp ')' { 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
+		$$.etiqueta = $1.etiqueta;
 		free(err_msg);	
 
+	}
+	;
+	while : TOK_WHILE {
+		$$.etiqueta = tag_num++;
+		write_while_exp__begin(nasm_file,$$.etiqueta);
 	}
 	;
 	lectura : TOK_SCANF TOK_IDENTIFICADOR  { 
@@ -439,6 +453,7 @@
 		write_expression(nasm_file,'+',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
+		$$.es_direccion = 0;
 	}
 	| exp '-' exp  { 
 		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
@@ -447,6 +462,7 @@
 		write_expression(nasm_file,'-',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
+		$$.es_direccion = 0;
 	}
 	| exp '/' exp  { 
 		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
@@ -455,6 +471,7 @@
 		write_expression(nasm_file,'/',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
+		$$.es_direccion = 0;
 	}
 	| exp '*' exp  { 
 		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
@@ -463,6 +480,7 @@
 		write_expression(nasm_file,'*',$1.es_direccion + 2*$3.es_direccion);
 		free(err_msg);	
 
+		$$.es_direccion = 0;
 	}
 	| '-' exp  { 
 		fprintf(logfile,";R76:	<exp> ::= - <exp>\n"); 
@@ -472,6 +490,7 @@
 		free(err_msg);	
 
 
+		$$.es_direccion = 0;
 	}
 	| exp TOK_AND exp  { 
 		fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); 
@@ -481,6 +500,7 @@
 		free(err_msg);	
 
 
+		$$.es_direccion = 0;
 	}
 	| exp TOK_OR exp  { 
 		fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); 
@@ -490,6 +510,7 @@
 		free(err_msg);	
 
 
+		$$.es_direccion = 0;
 	}
 	| '!' exp  { 
 		fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); 
@@ -499,6 +520,7 @@
 		free(err_msg);	
 
 
+		$$.es_direccion = 0;
 	}
 	| '(' exp ')'  { 
 		fprintf(logfile,";R82:	<exp> ::= ( <exp> )\n"); 
@@ -520,7 +542,7 @@
 			if (!sim)
 				sim = search_symbol(tabla,$1.lexema,GLOBAL);
 		}else
-		sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			sim = search_symbol(tabla,$1.lexema,GLOBAL);
 		if (sim)
 		{
 			if (!(sim->symbol_type != FUNCTION && sim->variable_type == ESCALAR)){
@@ -541,8 +563,9 @@
 	}
 	| constante  { 
 		fprintf(logfile,";R81:	<exp> ::= <constante>\n"); 
-		$$.es_direccion = $1.es_direccion;
 		$$.tipo = $1.tipo;
+		$$.es_direccion = 0;
+		_write_cte(nasm_file,$1.valor_entero,line);
 	}
 	| elemento_vector  { 
 		fprintf(logfile,";R85:	<exp> ::= <elemento_vector>\n"); 
@@ -647,21 +670,34 @@
 		free(err_msg);
 	}
 	;
-	constante : constante_logica  { fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
-	| constante_entera  { fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n");  $$.tipo = $1.tipo; $$.es_direccion = $1.es_direccion;}
+	constante : constante_logica  { 
+		fprintf(logfile,";R99:	<constante> ::= <constante_logica>\n"); 
+		$$.tipo = $1.tipo;
+	 	$$.es_direccion = $1.es_direccion;
+	 	$$.valor_entero = $1.valor_entero;
+	}
+	| constante_entera  { 
+		fprintf(logfile,";R100:	<constante> ::= <constante_entera>\n");  
+		$$.tipo = $1.tipo;
+	 	$$.es_direccion = $1.es_direccion;
+	 	$$.valor_entero = $1.valor_entero;
+
+	}
 	;
 	constante_logica : TOK_TRUE  {
 			fprintf(logfile,";R102:	<constante_logica> ::= TOK_TRUE\n");
 			$$.tipo = BOOLEAN;
 			$$.es_direccion = 0;
-			_write_cte(nasm_file,TRUE_ASM,line);
+			$$.valor_entero = TRUE_ASM;
+			//_write_cte(nasm_file,TRUE_ASM,line);
 
 	}
 	| TOK_FALSE {
 		fprintf(logfile,";R103:	<constante_logica> ::= TOK_FALSE\n"); 
 		$$.tipo = BOOLEAN; 
 		$$.es_direccion = 0;
-		_write_cte(nasm_file,FALSE_ASM,line);
+		$$.valor_entero = FALSE_ASM;
+		//_write_cte(nasm_file,FALSE_ASM,line);
 
 	}
 	;
@@ -669,7 +705,8 @@
 		fprintf(logfile,";R104:	<constante_entera> ::= TOK_CONSTANTE_ENTERA\n"); 
 		$$.tipo = INT; 
 		$$.es_direccion = 0;
-		_write_cte(nasm_file,$1.valor_entero,line);
+		$$.valor_entero = $1.valor_entero;
+		//_write_cte(nasm_file,$1.valor_entero,line);
 
 	}
 	;
