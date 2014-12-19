@@ -70,7 +70,7 @@ void write_neg_expression(FILE * nasm_file,int direccion,int logic);
  * @param nasm_file File to write into.
  * @param name      Vector's name.	
  */
-void write_load_vector_element(FILE * nasm_file, char * name);
+void write_load_vector_element(FILE * nasm_file, char * name,int direccion);
 
 
 /**

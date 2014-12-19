@@ -210,9 +210,12 @@ void write_comparation(FILE * nasm_file,int operation, int direccion){
 }
 
 
-void _load_vector_element(FILE * nasm_file,char * name){
-	_load_1_operator(nasm_file, 0);
+void _load_vector_element(FILE * nasm_file,char * name,int direccion){
+	fprintf(nasm_file,"pop dword eax\n");
+	if (direccion)
+		fprintf(nasm_file, " mov dword eax , [eax]\n");
 
+	fprintf(nasm_file, "; En eax está el índice del vector\n");
 	fprintf(nasm_file,"cmp eax,0\n");
 	fprintf(nasm_file,"jl near %s\n",EXE_ERROR_RANGE);
 	fprintf(nasm_file,"; Si el índice es mayor de lo permitido , error en tiempo de ejecución\n");
@@ -220,35 +223,41 @@ void _load_vector_element(FILE * nasm_file,char * name){
 	/* El pdf dice jl. */
 	fprintf(nasm_file,"jg near %s\n",EXE_ERROR_RANGE);
 
-	fprintf(nasm_file,"; Cargar 4 en edx (no de bytes de cada elemento del vector)\n");
-	fprintf(nasm_file,"mov dword edx, 4\n");
-	fprintf(nasm_file,"; eax = eax*edx, es decir, eax = eax*4\n");
-	fprintf(nasm_file,"imul edx\n");
+
+
 	fprintf(nasm_file,"; Cargar en edx la dirección de inicio del vector\n");
 	fprintf(nasm_file,"mov dword edx, _%s\n",name);
 	fprintf(nasm_file,"; Cargar en eax la dirección del elemento indexado\n");
-	fprintf(nasm_file,"add eax, edx\n");
+	fprintf(nasm_file,"lea eax, [edx + eax*4]\n");
+	fprintf(nasm_file,"; Apilar la dirección del elemento indexado\n");
 
 	_push_eax(nasm_file);
 }
 
-void write_load_vector_element(FILE * nasm_file, char * name){
-	_load_vector_element(nasm_file, name);
+void write_load_vector_element(FILE * nasm_file, char * name, int direccion){
+	_load_vector_element(nasm_file, name,direccion);
 }
 
 void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
-	_load_1_operator(nasm_file, direccion);
 
 	if (!vector){
+		_load_1_operator(nasm_file, direccion);
 		fprintf(nasm_file, "mov dword [_%s] , eax\n",name);
 	}
 	else
 	{
+		fprintf(nasm_file,"; Cargar en eax la parte derecha de la asignación\n");
+		fprintf(nasm_file,"pop dword eax\n");
+		if (direccion == 1)
+			fprintf(nasm_file,"mov dword eax, [eax]\n");
+		
+		fprintf(nasm_file,"; Cargar en edx la parte izquierda de la asignación\n");
 		fprintf(nasm_file,"pop dword edx\n");
 		fprintf(nasm_file,"; Hacer la asignación efectiva\n");
 		fprintf(nasm_file,"mov dword [edx] , eax\n");
 	}
-	//fprintf(nasm_file, "push dword _%s\n", name);
+
+	fprintf(nasm_file, "; Fin asignacion %s\n", name);
 }
 
 

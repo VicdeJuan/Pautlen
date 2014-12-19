@@ -350,8 +350,10 @@
 				print_sem_error(err_msg);
 			}
 			$$.tipo = sim->data_type;
-			write_load_vector_element(nasm_file,$1.lexema);
+			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion);
 		}
+
+		$$.es_direccion = 1;
 		free(err_msg);	
 	}
 	;
@@ -723,6 +725,8 @@
 
 			sim->data_type = tipo_actual;
 			sim->variable_type = clase_actual;
+			if (clase_actual == VECTOR)
+				sim->size = tamanio_vector_actual;
 			sim->symbol_type = VARIABLE;
 
 			add_symbol(tabla,sim,ambito_actual);
@@ -755,6 +759,8 @@
 
 				sim->data_type = tipo_actual;
 				sim->variable_type = clase_actual;
+				if (clase_actual == VECTOR)
+					sim->size = tamanio_vector_actual;
 				sim->symbol_type = VARIABLE;
 
 				add_symbol(tabla,sim,ambito_actual);
