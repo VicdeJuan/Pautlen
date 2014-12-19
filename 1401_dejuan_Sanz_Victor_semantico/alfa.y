@@ -13,7 +13,7 @@
 
 	int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
 
-	int en_explist,num_parametros_llamada_actual,tipo_retorno;
+	int en_explist,num_parametros_llamada_actual,tipo_retorno,vector_size = 0;
 
 	int tag_num;
 	symbol_table * tabla;
@@ -201,12 +201,7 @@
 		fprintf(logfile,";R15:	<clase_vector> ::= array <tipo> [ <constante_entera>  ]\n"); 
 		tamanio_vector_actual = $4.valor_entero;
 		if ((tamanio_vector_actual < 1) || (tamanio_vector_actual > MAX_TAMANIO_VECTOR))
-		{
-			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-			sprintf(err_msg, SEM_ERROR_VECTOR_SIZE);
-			print_sem_error(err_msg);
-		}
-
+			vector_size = 1;
 	}
 	;
 	identificadores : identificador  { fprintf(logfile,";R18:	<identificadores> ::= <identificador>\n"); }
@@ -272,7 +267,7 @@
 		pos_variable_local_actual = 1;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		if ($2.hay_retorno == 0){
-			sprintf(err_msg,SEM_ERROR_MISSING_RET);
+			sprintf(err_msg,SEM_ERROR__MISSING_RET,$1.lexema);
 			print_sem_error(err_msg);			
 		}
 		free(err_msg);	
@@ -290,7 +285,7 @@
 		fprintf(logfile,";R27:	<parametro_funcion> ::= <tipo> <identificador>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2)
+		CHECK_IDENT_DEFINED($2,1)
 		else{
 			sim->variable_type = tipo_actual;
 			tipo_actual = NONE;
@@ -320,11 +315,11 @@
 		fprintf(logfile,";R43:	<asignacion> ::= <identificador> = <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1)
+		CHECK_IDENT_DEFINED($1,1)
 		else{
 			CHECK_IS_NOT_FUNCTION($1.lexema);
 			if (sim->data_type != $3.tipo){
-				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(sim->data_type),GET_STR_FROM_TYPE($3.tipo));
+				sprintf(err_msg,SEM_ERROR__ASIG_INCOMPATIBLE_TYPES);
 				print_sem_error(err_msg);
 			}
 			CHECK_IS_ESCALAR($1.lexema)
@@ -337,7 +332,12 @@
 	| elemento_vector '=' exp { 
 		fprintf(logfile,";R44:	<asignacion> ::= <elemento_vector> = <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_SAME_TYPES($$,$1,$3)
+		if ($1.tipo == $3.tipo){
+			$$.es_direccion = $1.es_direccion;
+		}else{
+			sprintf(err_msg,SEM_ERROR__ASIG_INCOMPATIBLE_TYPES);
+			print_sem_error(err_msg);
+		}
 
 		write_assign(nasm_file,$1.lexema,$3.es_direccion,1);
 		free(err_msg);	
@@ -348,15 +348,11 @@
 		fprintf(logfile,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1)
+		CHECK_IDENT_DEFINED($1,1)
 		else{
 			CHECK_IS_VECTOR($1.lexema)
 			if ($3.tipo != INT){
-				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPE,GET_STR_FROM_TYPE($3.tipo));
-				print_sem_error(err_msg);
-			}
-			if (sim->data_type == $1.tipo){
-				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(sim->symbol_type),GET_STR_FROM_TYPE($1.tipo));
+				sprintf(err_msg,SEM_ERROR__INTEGER_INDEX);
 				print_sem_error(err_msg);
 			}
 			$$.tipo = sim->data_type;
@@ -388,7 +384,7 @@
 
 	if_exp :  TOK_IF  '(' exp ')' {
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_BOOLEAN_TYPE($$,$3)
+		CHECK_BOOLEAN_TYPE($$,$3,SEM_ERROR__CONDITION_WITH_INT)
 		$$.etiqueta = tag_num++;
 		write_if_exp__begin(nasm_file,$3.es_direccion,$$.etiqueta);
 		free(err_msg);	
@@ -402,7 +398,7 @@
 	;
 	while_exp : while '(' exp ')' { 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_BOOLEAN_TYPE($$,$3)
+		CHECK_BOOLEAN_TYPE($$,$3,SEM_ERROR__LOOP_WITH_INT)
 		$$.etiqueta = $1.etiqueta;
 		write_while_exp__mid(nasm_file,$$.etiqueta,$3.es_direccion);
 		free(err_msg);	
@@ -420,7 +416,7 @@
 		fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2)
+		CHECK_IDENT_DEFINED($2,1)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 			CHECK_IS_ESCALAR(sim->key);
@@ -435,7 +431,7 @@
 		fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2)
+		CHECK_IDENT_DEFINED($2,1)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 			write_printf(nasm_file,$2.es_direccion,sim->data_type==INT);
@@ -448,11 +444,11 @@
 		fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2)
+		CHECK_IDENT_DEFINED($2,1)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
 			if(tipo_retorno != sim->data_type){
-				sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(tipo_retorno),GET_STR_FROM_TYPE(sim->data_type));
+				sprintf(err_msg,SEM_ERROR__RET_INCOMPATIBLE_TYPES);
 				print_sem_error(err_msg);
 			}
 		}
@@ -463,7 +459,7 @@
 	exp : exp '+' exp  { 
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__ARIT_WITH_BOOL);
 		free(err_msg);	
 		write_expression(nasm_file,'+',$3.es_direccion + 2*$1.es_direccion);
 		$$.es_direccion = 0;
@@ -471,7 +467,7 @@
 	| exp '-' exp  { 
 		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__ARIT_WITH_BOOL);
 		write_expression(nasm_file,'-',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
@@ -480,7 +476,7 @@
 	| exp '/' exp  { 
 		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__ARIT_WITH_BOOL);
 		write_expression(nasm_file,'/',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
@@ -489,7 +485,7 @@
 	| exp '*' exp  { 
 		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__ARIT_WITH_BOOL);
 		write_expression(nasm_file,'*',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
@@ -528,7 +524,7 @@
 	| '!' exp  { 
 		fprintf(logfile,";R79:	<exp> ::= ! <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_BOOLEAN_TYPE($$,$2);
+		CHECK_BOOLEAN_TYPE($$,$2,SEM_ERROR__LOGIC_WITH_INT);
 		write_neg_expression(nasm_file,$2.es_direccion,1);
 		free(err_msg);	
 
@@ -563,8 +559,7 @@
 		if (sim)
 		{
 			if (!(sim->symbol_type != FUNCTION && sim->variable_type == ESCALAR)){
-				sprintf(err_msg, SEM_ERROR_FUNCTION_NOT_ALLOWED,$1.lexema);
-				sprintf(err_msg,"%s tipo_sim: %d, tipo_var %d",err_msg,sim->symbol_type, sim->variable_type);
+				sprintf(err_msg, SEM_ERROR__NOT_FUNCTION,$1.lexema);
 				print_sem_error(err_msg);
 			}else{
 				$$.tipo = sim->data_type;
@@ -572,7 +567,7 @@
 			}
 		}
 		else{
-			sprintf(err_msg, SEM_ERROR_NOT_DEFINED ,$1.lexema);
+			sprintf(err_msg,SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
 			print_sem_error(err_msg);
 		}
 		free(err_msg);
@@ -616,10 +611,10 @@
 		if (sim)
 		{
 			if (sim->num_parameter > num_parametros_llamada_actual){
-				sprintf(err_msg, SEM_ERROR_NEED_MORE_PARAM ,$1.lexema,sim->num_parameter,num_parametros_llamada_actual);
+				sprintf(err_msg, SEM_ERROR__NEED_MORE_PARAM);
 				print_sem_error(err_msg);					
 			} else if (sim->num_parameter < num_parametros_llamada_actual){
-				sprintf(err_msg, SEM_ERROR_TOO_MUCH_PARAM ,$1.lexema,sim->num_parameter,num_parametros_llamada_actual);
+				sprintf(err_msg, SEM_ERROR__TOO_MUCH_PARAM);
 				print_sem_error(err_msg);					
 			}else{
 					/* Todo bien, todo correcto. Seguimos: */
@@ -629,7 +624,7 @@
 				num_parametros_llamada_actual = 0;
 			}
 		}else{
-			sprintf(err_msg, SEM_ERROR_FATAL ,$1.lexema);
+			sprintf(err_msg, SEM_ERROR__FATAL ,$1.lexema);
 			print_sem_error(err_msg);
 		}
 		free(err_msg);	
@@ -642,11 +637,11 @@
 		fprintf(logfile, ";R108.2 <llamada a funcion> ::= identificador\n");
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1)
+		CHECK_IDENT_DEFINED($1,1)
 		else{
 			CHECK_IS_FUNCTION(sim->key);
 			if (en_explist == 1){
-				sprintf(err_msg,SEM_ERROR_FUNCTION_NOT_ALLOWED,$1.lexema);
+				sprintf(err_msg,SEM_ERROR__FUNCTION_NOT_ALLOWED_AS_ARG);
 				print_sem_error(err_msg);
 				num_parametros_llamada_actual = 0;
 			}
@@ -680,7 +675,7 @@
 		fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		write_comparation(nasm_file,CMP_IGUAL,$3.es_direccion + 2*$1.es_direccion);
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__COMPARE_WITH_BOOL);
 		$$.tipo = BOOLEAN;	
 		free(err_msg);
 	}
@@ -688,14 +683,14 @@
 		fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		write_comparation(nasm_file,CMP_DISTINTO,$3.es_direccion + 2*$1.es_direccion);
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__COMPARE_WITH_BOOL);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
 	}
 	| exp TOK_MENORIGUAL exp  { 
 		fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__COMPARE_WITH_BOOL);
 		write_comparation(nasm_file,CMP_MENORIGUAL,$3.es_direccion + 2*$1.es_direccion);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
@@ -703,7 +698,7 @@
 	| exp TOK_MAYORIGUAL exp  { 
 		fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__COMPARE_WITH_BOOL);
 		write_comparation(nasm_file,CMP_MAYORIGUAL,$3.es_direccion + 2*$1.es_direccion);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
@@ -711,7 +706,7 @@
 	| exp '<' exp  { 
 		fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__COMPARE_WITH_BOOL);
 		write_comparation(nasm_file,CMP_MENOR,$3.es_direccion + 2*$1.es_direccion);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
@@ -720,7 +715,7 @@
 		fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		write_comparation(nasm_file,CMP_MAYOR,$3.es_direccion + 2*$1.es_direccion);
-		CHECK_INT_TYPES($$,$1,$3);
+		CHECK_INT_TYPES($$,$1,$3,SEM_ERROR__COMPARE_WITH_BOOL);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
 	}
@@ -791,7 +786,7 @@
 		}
 		else{
 			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-			sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
+			sprintf(err_msg, SEM_ERROR__ALREADY_DEF);
 			print_sem_error(err_msg);
 		}
 
@@ -806,7 +801,7 @@
 		else
 		{
 			if(clase_actual != ESCALAR && ambito_actual == LOCAL){
-				print_sem_error(SEM_ERROR_JUST_ESCALAR_IN_LOCAL);
+				print_sem_error(SEM_ERROR__LOCAL_NOT_ESCALAR);
 			}else{		
 				sim = malloc(sizeof(symbol));
 				initialize_simbolo(sim);
@@ -814,8 +809,13 @@
 
 				sim->data_type = tipo_actual;
 				sim->variable_type = clase_actual;
-				if (clase_actual == VECTOR)
+				if (clase_actual == VECTOR){
+					if (vector_size){
+						sprintf(err_msg, SEM_ERROR__VECTOR_SIZE,$1.lexema);
+						print_sem_error(err_msg);
+					}
 					sim->size = tamanio_vector_actual;
+				}
 				sim->symbol_type = VARIABLE;
 
 				add_symbol(tabla,sim,ambito_actual);
