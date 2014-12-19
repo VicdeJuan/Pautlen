@@ -99,4 +99,10 @@ void write_scanf(FILE * nasm_file, char * name, int integer);
 void write_printf(FILE * nasm_file, int es_direccion,int integer);
 
 
+
+void write_if_exp__begin(FILE * nasm_file,int direccion,int tag);
+void write_else_exp__mid(FILE * nasm_file, int tag);
+void write_else_exp__end(FILE * nasm_file, int tag);
+
 #endif
+

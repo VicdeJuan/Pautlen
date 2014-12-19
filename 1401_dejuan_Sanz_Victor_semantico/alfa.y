@@ -357,22 +357,30 @@
 		free(err_msg);	
 	}
 	;
+
+
 	condicional : if_exp '{' sentencias '}'  {
 		fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); 
-		write_if_exp__end(nasm_file,$1.etiqueta);
+		write_if_exp__end(nasm_file,tag_num);
+
 	}
-	| if_exp_sentencias TOK_ELSE '{' sentencias '}'  { fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); }
+	| if_exp_sentencias TOK_ELSE '{' sentencias '}'  {
+		fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); 
+		write_else_exp__end(nasm_file,tag_num);
+	}
 	;
 
 	if_exp_sentencias : if_exp '{' sentencias '}' {
 		$$.etiqueta = $1.etiqueta;
+		write_else_exp__mid(nasm_file,tag_num);
 	}
 	;
+
 	if_exp :  TOK_IF  '(' exp ')' {
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
 		$$.etiqueta = tag_num++;
-		write_if_exp__begin(nasm_file,$$.etiqueta);
+		write_if_exp__begin(nasm_file,$3.es_direccion,tag_num);
 		free(err_msg);	
 	}
 	;
@@ -632,6 +640,7 @@
 	comparacion : exp TOK_IGUAL exp  { 
 		fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		write_comparation(nasm_file,CMP_IGUAL,$3.es_direccion + 2*$1.es_direccion);
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN;	
 		free(err_msg);
@@ -639,6 +648,7 @@
 	| exp TOK_DISTINTO exp  { 
 		fprintf(logfile,";R94:	<comparacion> ::= <exp> != <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		write_comparation(nasm_file,CMP_DISTINTO,$3.es_direccion + 2*$1.es_direccion);
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
@@ -647,6 +657,7 @@
 		fprintf(logfile,";R95:	<comparacion> ::= <exp> <= <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_comparation(nasm_file,CMP_MENORIGUAL,$3.es_direccion + 2*$1.es_direccion);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
 	}
@@ -654,6 +665,7 @@
 		fprintf(logfile,";R96:	<comparacion> ::= <exp> >= <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_comparation(nasm_file,CMP_MAYORIGUAL,$3.es_direccion + 2*$1.es_direccion);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
 	}
@@ -661,12 +673,14 @@
 		fprintf(logfile,";R97:	<comparacion> ::= <exp> < <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
+		write_comparation(nasm_file,CMP_MENOR,$3.es_direccion + 2*$1.es_direccion);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);
 	}
 	| exp '>' exp  { 
 		fprintf(logfile,";R98:	<comparacion> ::= <exp> > <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+		write_comparation(nasm_file,CMP_MAYOR,$3.es_direccion + 2*$1.es_direccion);
 		CHECK_INT_TYPES($$,$1,$3);
 		$$.tipo = BOOLEAN; 
 		free(err_msg);

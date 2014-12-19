@@ -206,7 +206,6 @@ void write_comparation(FILE * nasm_file,int operation, int direccion){
 
 	tag_num += 2;
 	
-	_push_eax(nasm_file);
 }
 
 
@@ -299,27 +298,38 @@ void write_printf(FILE * nasm_file, int es_direccion,int integer){
 
 }
 
-void write_if_exp__begin(FILE * nasm_file,int tag){
 
+
+
+
+
+
+void	write_if_exp__begin(FILE * nasm_file,int direccion,int tag){
 	fprintf(nasm_file,"pop eax\n");
-	fprintf(nasm_file,"mov eax , [eax]\n");
+	if(direccion)
+		fprintf(nasm_file,"mov eax , [eax]\n");
 	fprintf(nasm_file,"cmp eax, 0\n");
 	fprintf(nasm_file,"je near fin_si%d\n",tag);
-
 }
 
-void write_if_exp__end(FILE * nasm_file,int tag){
-	fprintf(nasm_file, "fin_si%d:\n", tag);
+
+void write_if_exp__end(FILE * nasm_file, int tag){
+	fprintf(nasm_file,"fin_si%d:\n",tag);
 }
 
-void write_else_exp__mid(FILE * nasm_file,int tag){
+
+
+void write_else_exp__mid(FILE * nasm_file, int tag){
 	fprintf(nasm_file,"jmp near fin_sino%d\n",tag);
 	fprintf(nasm_file,"fin_si%d:\n",tag);
 }
 
-void write_else_exp__end(FILE * nasm_file,int tag){
-	fprintf(nasm_file, "fin_sino%d:\n", tag);
+void write_else_exp__end(FILE * nasm_file, int tag){
+	fprintf(nasm_file,"fin_sino%d:\n",tag);
 }
+
+
+
 
 void write_while_exp__begin(FILE* nasm_file,int tag){
 	fprintf(nasm_file, "inicio_while%d:\n",tag);
