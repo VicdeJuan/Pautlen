@@ -8,11 +8,13 @@
 
 	extern int column,line,error;
 
-/** A inicializar */
+
 	int clase_actual, tipo_actual,ambito_actual,tamanio_vector_actual;
+
 	int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
+
 	int en_explist,num_parametros_llamada_actual,tipo_retorno;
-/** Ya escrita su inicialización */
+
 	int tag_num;
 	symbol_table * tabla;
 	FILE * logfile;
@@ -101,14 +103,18 @@
 	%type <atributo> constante_entera
 	%type <atributo> identificador
 	%type <atributo> idpf
-	%type <atributo> funcion
-	%type <atributo> fn_name
-	%type <atributo> fn_declaration
-	%type <atributo> idf_llamada_funcion
 	%type <atributo> if_exp
 	%type <atributo> while_exp
 	%type <atributo> while
 	%type <atributo> if_exp_sentencias
+
+	/* Funciones */
+	%type <atributo> fn_name
+	%type <atributo> fn_declaration
+	%type <atributo> funcion
+	%type <atributo> idf_llamada_funcion
+	%type <atributo> escritura_main
+	%type <atributo> ini_exp_l
 
 
 	%right '='
@@ -123,7 +129,7 @@
 	%start programa
 
 	%%
-	programa : inicializacion main '{' declaraciones escritura_TS funciones sentencias '}' {
+	programa : inicializacion main '{' declaraciones escritura_TS funciones escritura_main sentencias '}' {
 		fprintf(logfile,";R1:	<programa> ::= main { <declaraciones> <funciones> <sentencias> }\n"); 
 		write_execute_errors(nasm_file);
 	}
@@ -136,6 +142,9 @@
 		
 	}
 	;
+	escritura_main : {
+		write_main_tag(nasm_file);
+	}
 	inicializacion : {
 		/* Inicializamos la tabla */
 		tabla = create_symbol_table();
@@ -251,6 +260,7 @@
 
 		}
 		strcpy($$.lexema,$1.lexema);
+		write_fn__begin(nasm_file,$1.lexema,num_variables_locales_actual,num_parametro_actual);
 
 	}
 	;
@@ -266,7 +276,7 @@
 			print_sem_error(err_msg);			
 		}
 		free(err_msg);	
-
+		__write_fn__ret(nasm_file);
 
 	}
 
@@ -350,10 +360,10 @@
 				print_sem_error(err_msg);
 			}
 			$$.tipo = sim->data_type;
-			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion);
+			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion,en_explist);
 		}
 
-		$$.es_direccion = 1;
+		$$.es_direccion = 1 ? !en_explist : 0;
 		free(err_msg);	
 	}
 	;
@@ -447,24 +457,15 @@
 			}
 		}
 		free(err_msg);	
-
-	} /*| TOK_RETURN exp {
-		fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); 
-		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		if(tipo_retorno != $2.tipo){
-			sprintf(err_msg,SEM_ERROR_INCOMPATIBLE_TYPES,GET_STR_FROM_TYPE(tipo_retorno),GET_STR_FROM_TYPE($2.tipo));
-			print_sem_error(err_msg);
-		}
-
-	}*/
+		write_fn__ret(nasm_file,$2.es_direccion);
+	} 
 	;
 	exp : exp '+' exp  { 
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
-		write_expression(nasm_file,'+',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
-
+		write_expression(nasm_file,'+',$3.es_direccion + 2*$1.es_direccion);
 		$$.es_direccion = 0;
 	}
 	| exp '-' exp  { 
@@ -547,14 +548,18 @@
 	| TOK_IDENTIFICADOR  { 
 		fprintf(logfile,";R80:	<exp> ::= <identificador>\n"); 
 		symbol * sim;
+		int is_local = 0;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		if (ambito_actual == LOCAL){
 			sim = search_symbol(tabla,$1.lexema,ambito_actual);
 
 			if (!sim)
 				sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			else
+				is_local = 1;
 		}else
 			sim = search_symbol(tabla,$1.lexema,GLOBAL);
+
 		if (sim)
 		{
 			if (!(sim->symbol_type != FUNCTION && sim->variable_type == ESCALAR)){
@@ -570,8 +575,22 @@
 			sprintf(err_msg, SEM_ERROR_NOT_DEFINED ,$1.lexema);
 			print_sem_error(err_msg);
 		}
-		free(err_msg);	
-		push_operator(nasm_file,$1.lexema);
+		free(err_msg);
+		if (!is_local){
+			if (en_explist){
+				$$.es_direccion = 0;
+				push_argument(nasm_file,$1.lexema,0);
+			}
+			else
+				push_operator(nasm_file,$1.lexema);			
+		} else {		
+			$$.es_direccion = 0;
+			if (sim->pos_local_variables == -1){
+				write_fn__load_argument(nasm_file,num_parametro_actual,sim->pos_parameter,0);
+			}else{
+				write_fn__local_var(nasm_file,sim->pos_local_variables,0);
+			}
+		}
 
 	}
 	| constante  { 
@@ -585,6 +604,10 @@
 		$$.es_direccion = $1.es_direccion;
 		$$.tipo = $1.tipo;
 
+		if (ambito_actual == LOCAL){
+			$$.es_direccion = 0;
+			write_fn__local_var(nasm_file,pos_variable_local_actual,0);
+		}
 	}
 	| idf_llamada_funcion '(' lista_expresiones ')'  { 
 		fprintf(logfile,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); 
@@ -610,13 +633,13 @@
 			print_sem_error(err_msg);
 		}
 		free(err_msg);	
+		write_fn__call(nasm_file,$1.lexema,sim->num_parameter);
 
 	}
 	;
 
 	idf_llamada_funcion : TOK_IDENTIFICADOR {
 		fprintf(logfile, ";R108.2 <llamada a funcion> ::= identificador\n");
-		en_explist = 0;
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_IDENT_DEFINED($1)
@@ -634,12 +657,25 @@
 	}
 	;
 
-	lista_expresiones : exp resto_lista_expresiones  {num_parametros_llamada_actual++; fprintf(logfile,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n"); }
-	|  { fprintf(logfile,";R90:	<lista_expresiones> ::= \n"); }
+	ini_exp_l : {en_explist = 1;}
+
+	lista_expresiones : ini_exp_l exp resto_lista_expresiones  {
+		fprintf(logfile,";R89:	<lista_expresiones> ::= <exp> <resto_lista_expresiones>\n");
+		num_parametros_llamada_actual++; 
+	}
+	|  {
+		fprintf(logfile,";R90:	<lista_expresiones> ::= \n"); 
+	}
 	;
-	resto_lista_expresiones : ',' exp resto_lista_expresiones  { num_parametros_llamada_actual++; fprintf(logfile,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); }
-	|  {/*vacia*/} { fprintf(logfile,";R91:	<resto_lista_expresiones> ::= \n"); }
+	resto_lista_expresiones : ',' exp resto_lista_expresiones  {
+		fprintf(logfile,";R91:	<resto_lista_expresiones> ::= , <exp> <resto_lista_expresiones>\n"); 
+		num_parametros_llamada_actual++; 
+	}
+	|  {
+	 	fprintf(logfile,";R91:	<resto_lista_expresiones> ::= \n"); 
+	}
 	;
+
 	comparacion : exp TOK_IGUAL exp  { 
 		fprintf(logfile,";R93:	<comparacion> ::= <exp> == <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
@@ -748,6 +784,8 @@
 
 			add_symbol(tabla,sim,ambito_actual);
 
+			sim->pos_parameter = pos_parametro_actual;
+
 			pos_parametro_actual++;
 			num_parametro_actual++;
 		}
@@ -783,6 +821,7 @@
 				add_symbol(tabla,sim,ambito_actual);
 
 				if (ambito_actual == LOCAL){
+					sim->pos_local_variables = pos_variable_local_actual;
 					pos_variable_local_actual++;
 					num_variables_locales_actual++;
 				}

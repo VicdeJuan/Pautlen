@@ -1,4 +1,5 @@
 #include "code_generator.h"
+#include "function_generator.h"
 
 int _write_variable(const void * key,void * value, void * pass_through){
 	FILE * nasm_file = (FILE *) pass_through;
@@ -13,7 +14,14 @@ int _write_variable(const void * key,void * value, void * pass_through){
 }
 
 void _write_text_segment(FILE * f){
-	fprintf(f, "segment .text\nglobal main\nextern scan_int, scan_boolean\nextern print_int, print_boolean, print_string, print_blank, print_endofline\n;\n; código correspondiente a la compilación del no terminal “funciones\"\n;\nmain:\n");
+	fprintf(f, "segment .text\n");
+	fprintf(f,"global main\n");
+	fprintf(f,"extern scan_int, scan_boolean\n");
+	fprintf(f,"extern print_int, print_boolean, print_string, print_blank, print_endofline\n");
+}
+
+void write_main_tag(FILE * f){
+	fprintf(f,"main:\n");
 }
 
 void _write_bss_segment(FILE * f,symbol_table * tabla){	
@@ -93,11 +101,6 @@ void _load_1_operator(FILE * nasm_file, int direccion){
 
 }
 
-void _push_eax(FILE * nasm_file){
-	fprintf(nasm_file,"; apilar el resultado\n");
-	fprintf(nasm_file,"push dword eax\n");
-}
-
 void push_operator(FILE * nasm_file, char * name){
 	fprintf(nasm_file, "push dword _%s\n",name );
 }
@@ -142,7 +145,6 @@ void write_expression(FILE * nasm_file, char operation,int direccion){
 		default :
 			fprintf(nasm_file, "; No definida operacion: %c\n",operation);
 	}
-
 	_push_eax(nasm_file);
 
 }
@@ -169,6 +171,7 @@ void write_neg_expression(FILE * nasm_file,int direccion,int logic){
 	}
 
 	_push_eax(nasm_file);
+
 }
 
 void write_comparation(FILE * nasm_file,int operation, int direccion){
@@ -209,7 +212,8 @@ void write_comparation(FILE * nasm_file,int operation, int direccion){
 }
 
 
-void _load_vector_element(FILE * nasm_file,char * name,int direccion){
+
+void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int is_arg){
 	fprintf(nasm_file,"pop dword eax\n");
 	if (direccion)
 		fprintf(nasm_file, " mov dword eax , [eax]\n");
@@ -230,11 +234,11 @@ void _load_vector_element(FILE * nasm_file,char * name,int direccion){
 	fprintf(nasm_file,"lea eax, [edx + eax*4]\n");
 	fprintf(nasm_file,"; Apilar la dirección del elemento indexado\n");
 
-	_push_eax(nasm_file);
-}
+	if (is_arg)
+		fprintf(nasm_file, "push dword [eax]\n");
+	else
+		_push_eax(nasm_file);
 
-void write_load_vector_element(FILE * nasm_file, char * name, int direccion){
-	_load_vector_element(nasm_file, name,direccion);
 }
 
 void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
@@ -277,12 +281,8 @@ void write_printf(FILE * nasm_file, int es_direccion,int integer){
 	if (es_direccion == 1){
 		fprintf(nasm_file,"pop eax\n");		
 		fprintf(nasm_file,"mov eax, dword [eax]\n");		
-	}else {
-		fprintf(nasm_file,"pop eax\n");		
-
+		_push_eax(nasm_file);
 	}
-
-	_push_eax(nasm_file);
 
 	if (integer){		
 		fprintf(nasm_file,"; Si la expresión es de tipo entero\n");

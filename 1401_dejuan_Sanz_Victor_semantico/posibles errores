@@ -1,22 +1,24 @@
-1) num_variables_locales_actual++; en TOK_IDENTIFICADOR
+- 1) num_variables_locales_actual++; en TOK_IDENTIFICADOR
 
-2) fn_declaration : fn_name '(' parametros_funcion ')' '{' declaraciones_funcion {
-2.2) Gestión de las variables globales en general
+- 2) fn_declaration : fn_name '(' parametros_funcion ')' '{' declaraciones_funcion {
+- 2.2) Gestión de las variables globales en general
 		int pos_variable_local_actual,num_variables_locales_actual,pos_parametro_actual,num_parametro_actual;
 
-3) data_type en funciones guarda el retorno? SI!
-3.2) variable_type de funciones??
+- 3) data_type en funciones guarda el retorno? SI!
+- 3.2) variable_type de funciones??
 
-4) num_parametros_llamada_actual.
+- 4) num_parametros_llamada_actual.
 
 5) Este fijo que sí. Asignación a un TOK_IDENTIFIADOR con mismo tipos pero que sea vector.
 
-6) es_dirección, wtf.
+- 6) es_dirección, wtf.
 
-7) return o print una expresión o una constante entera o un retorno de función. No se va a poder.
+- 7) return o print una expresión o una constante entera o un retorno de función. No se va a poder.
 
-8) división y multiplicación, registros al revés.
+- 8) división y multiplicación, registros al revés.
 
-9) Gestión de etiquetas
+- 9) Gestión de etiquetas
 
 10) No inicializadas las variables.
+
+11) Definir vector de 5 y acceder con 6. ¿Controlar eso?

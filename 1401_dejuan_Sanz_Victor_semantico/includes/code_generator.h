@@ -1,9 +1,8 @@
 #ifndef CODE_GENERATOR
 #define CODE_GENERATOR 
 
-#include <stdio.h>
-#include "symbol_table.h"
-#include <stdlib.h>
+#include "function_generator.h"
+
 
 #define TRUE_ASM 1
 #define FALSE_ASM 0
@@ -70,7 +69,7 @@ void write_neg_expression(FILE * nasm_file,int direccion,int logic);
  * @param nasm_file File to write into.
  * @param name      Vector's name.	
  */
-void write_load_vector_element(FILE * nasm_file, char * name,int direccion);
+void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int arg);
 
 
 /**
