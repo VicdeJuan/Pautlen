@@ -1,9 +1,0 @@
-;D:	main
-;D:	{
-;D:	int
-;D:	x
-;D:	,
-;D:	y
-;D:	;
-;D:	boolean
-;D:	x

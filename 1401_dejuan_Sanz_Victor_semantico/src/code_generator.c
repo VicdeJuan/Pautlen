@@ -334,6 +334,7 @@ void write_else_exp__end(FILE * nasm_file, int tag){
 void write_while_exp__begin(FILE* nasm_file,int tag){
 	fprintf(nasm_file, "inicio_while%d:\n",tag);
 }
+
 void write_while_exp__mid(FILE * nasm_file,int tag,int es_direccion){
 	fprintf(nasm_file,"pop eax\n");
 	if (es_direccion){
@@ -341,7 +342,7 @@ void write_while_exp__mid(FILE * nasm_file,int tag,int es_direccion){
 		fprintf(nasm_file,"mov eax , [eax]\n");
 	}
 	fprintf(nasm_file,"cmp eax, 0\n");		
-	fprintf(nasm_file,"je near fin_while%d:\n",tag);
+	fprintf(nasm_file,"je near fin_while%d\n",tag);
 }
 
 void write_while_exp__end(FILE* nasm_file,int tag){

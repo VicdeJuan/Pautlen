@@ -361,18 +361,18 @@
 
 	condicional : if_exp '{' sentencias '}'  {
 		fprintf(logfile,";R50:	<condicional> ::= if ( <exp> ) { <sentencias> }\n"); 
-		write_if_exp__end(nasm_file,tag_num);
+		write_if_exp__end(nasm_file,$1.etiqueta);
 
 	}
 	| if_exp_sentencias TOK_ELSE '{' sentencias '}'  {
 		fprintf(logfile,";R51:	<condicional> ::= if ( <exp> ) { <sentencias> } else { <sentencias> }\n"); 
-		write_else_exp__end(nasm_file,tag_num);
+		write_else_exp__end(nasm_file,$1.etiqueta);
 	}
 	;
 
 	if_exp_sentencias : if_exp '{' sentencias '}' {
 		$$.etiqueta = $1.etiqueta;
-		write_else_exp__mid(nasm_file,tag_num);
+		write_else_exp__mid(nasm_file,$1.etiqueta);
 	}
 	;
 
@@ -380,20 +380,21 @@
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
 		$$.etiqueta = tag_num++;
-		write_if_exp__begin(nasm_file,$3.es_direccion,tag_num);
+		write_if_exp__begin(nasm_file,$3.es_direccion,$$.etiqueta);
 		free(err_msg);	
 	}
 	;
 
 	bucle : while_exp '{' sentencias '}'  {
 		fprintf(logfile,";R52:	<bucle> ::= while ( <exp> ) { <sentencias> }\n"); 
-		write_while_exp__end(nasm_file,tag_num);
+		write_while_exp__end(nasm_file,$1.etiqueta);
 	}
 	;
 	while_exp : while '(' exp ')' { 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPE($$,$3)
 		$$.etiqueta = $1.etiqueta;
+		write_while_exp__mid(nasm_file,$$.etiqueta,$3.es_direccion);
 		free(err_msg);	
 
 	}
@@ -403,6 +404,8 @@
 		write_while_exp__begin(nasm_file,$$.etiqueta);
 	}
 	;
+
+
 	lectura : TOK_SCANF TOK_IDENTIFICADOR  { 
 		fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); 
 		symbol * sim;
@@ -417,7 +420,7 @@
 
 	}
 	;
-	/**debería ser un exp*/
+
 	escritura : TOK_PRINTF exp { 
 		fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); 
 		symbol * sim;
@@ -459,7 +462,7 @@
 		fprintf(logfile,";R72:	<exp> ::= <exp> + <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
-		write_expression(nasm_file,'+',$1.es_direccion + 2*$3.es_direccion);
+		write_expression(nasm_file,'+',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
 		$$.es_direccion = 0;
@@ -468,7 +471,7 @@
 		fprintf(logfile,";R73:	<exp> ::= <exp> - <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
-		write_expression(nasm_file,'-',$1.es_direccion + 2*$3.es_direccion);
+		write_expression(nasm_file,'-',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
 		$$.es_direccion = 0;
@@ -477,7 +480,7 @@
 		fprintf(logfile,";R74:	<exp> ::= <exp> / <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
-		write_expression(nasm_file,'/',$1.es_direccion + 2*$3.es_direccion);
+		write_expression(nasm_file,'/',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
 		$$.es_direccion = 0;
@@ -486,7 +489,7 @@
 		fprintf(logfile,";R75:	<exp> ::= <exp> * <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_INT_TYPES($$,$1,$3);
-		write_expression(nasm_file,'*',$1.es_direccion + 2*$3.es_direccion);
+		write_expression(nasm_file,'*',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
 		$$.es_direccion = 0;
@@ -505,7 +508,7 @@
 		fprintf(logfile,";R77:	<exp> ::= <exp> && <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPES($$,$1,$3);
-		write_expression(nasm_file,'&',$1.es_direccion + 2*$3.es_direccion);
+		write_expression(nasm_file,'&',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
 
@@ -515,7 +518,7 @@
 		fprintf(logfile,";R78:	<exp> ::= <exp> || <exp>\n"); 
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_BOOLEAN_TYPES($$,$1,$3);
-		write_expression(nasm_file,'|',$1.es_direccion + 2*$3.es_direccion);
+		write_expression(nasm_file,'|',$3.es_direccion + 2*$1.es_direccion);
 		free(err_msg);	
 
 
