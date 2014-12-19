@@ -98,6 +98,10 @@ void _push_eax(FILE * nasm_file){
 	fprintf(nasm_file,"push dword eax\n");
 }
 
+void push_operator(FILE * nasm_file, char * name){
+	fprintf(nasm_file, "push dword _%s\n",name );
+}
+
 
 void write_expression(FILE * nasm_file, char operation,int direccion){
 	
@@ -122,8 +126,11 @@ void write_expression(FILE * nasm_file, char operation,int direccion){
 		case '/':
 			fprintf(nasm_file,"; realizar la división y dejar el resultado en eax\n");
 			/*Control división por 0.*/
-			fprintf(nasm_file, "jz %s\n",EXE_ERROR_ZERO );
-			fprintf(nasm_file,"idiv edx\n");
+			fprintf(nasm_file, "mov ecx,edx\n");
+			fprintf(nasm_file, "cmp ecx,0\n");
+			fprintf(nasm_file, "je %s\n",EXE_ERROR_ZERO );
+			fprintf(nasm_file, "cdq\n");
+			fprintf(nasm_file,"idiv ecx\n");
 			break;
 		case '&':
 			fprintf(nasm_file, "and eax, edx\n");
@@ -241,7 +248,7 @@ void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
 		fprintf(nasm_file,"; Hacer la asignación efectiva\n");
 		fprintf(nasm_file,"mov dword [edx] , eax\n");
 	}
-	fprintf(nasm_file, "push dword _%s\n", name);
+	//fprintf(nasm_file, "push dword _%s\n", name);
 }
 
 
@@ -257,13 +264,17 @@ void write_scanf(FILE * nasm_file, char * name, int integer){
 }
 
 
-void write_printf(FILE * nasm_file,char * name, int es_direccion,int integer){
+void write_printf(FILE * nasm_file, int es_direccion,int integer){
 	fprintf(nasm_file,"; Acceso al valor de exp si es distinto de constante\n");
 	if (es_direccion == 1){
-		fprintf(nasm_file,"pop dword eax\n");
-		fprintf(nasm_file,"mov dword eax , [eax]\n");
-		fprintf(nasm_file,"push dword eax\n");		
+		fprintf(nasm_file,"pop eax\n");		
+		fprintf(nasm_file,"mov eax, dword [eax]\n");		
+	}else {
+		fprintf(nasm_file,"pop eax\n");		
+
 	}
+
+	_push_eax(nasm_file);
 
 	if (integer){		
 		fprintf(nasm_file,"; Si la expresión es de tipo entero\n");

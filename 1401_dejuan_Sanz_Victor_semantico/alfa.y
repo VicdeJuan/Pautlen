@@ -415,8 +415,7 @@
 		CHECK_IDENT_DEFINED($2)
 		else{
 			CHECK_IS_VARIABLE(sim->key);
-			/*wtf*/
-			write_printf(nasm_file,sim->key,$2.es_direccion,sim->data_type==INT);
+			write_printf(nasm_file,$2.es_direccion,sim->data_type==INT);
 		}
 		free(err_msg);	
 
@@ -559,6 +558,7 @@
 			print_sem_error(err_msg);
 		}
 		free(err_msg);	
+		push_operator(nasm_file,$1.lexema);
 
 	}
 	| constante  { 

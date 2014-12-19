@@ -46,6 +46,8 @@ int declare_global_variables(FILE * nasm_file,symbol_table * tabla);
  * @param nasm_file File to write into.
  */
 void write_execute_errors(FILE * nasm_file);
+void push_operator(FILE * nasm_file, char * name);
+void push_2_operators(FILE * nasm_file, char * name1, char * name2, int direccion);
 
 /**
  * Writes nasm code for operations	
@@ -94,7 +96,7 @@ void write_scanf(FILE * nasm_file, char * name, int integer);
  * @param name      
  * @param integer   true if it's an integer, false if bool
  */
-void write_printf(FILE * nasm_file,char * name, int es_direccion,int integer);
+void write_printf(FILE * nasm_file, int es_direccion,int integer);
 
 
 #endif
