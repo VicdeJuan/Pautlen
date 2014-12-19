@@ -431,11 +431,9 @@
 		fprintf(logfile,";R56:	<escritura> ::= printf <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2,1)
-		else{
-			CHECK_IS_VARIABLE(sim->key);
-			write_printf(nasm_file,$2.es_direccion,sim->data_type==INT);
-		}
+
+		write_printf(nasm_file,$2.es_direccion,$2.tipo);
+
 		free(err_msg);	
 
 	}
@@ -444,13 +442,9 @@
 		fprintf(logfile,";R61:	<retorno_funcion> ::= return <exp>\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2,1)
-		else{
-			CHECK_IS_VARIABLE(sim->key);
-			if(tipo_retorno != sim->data_type){
+		if(tipo_retorno != $2.tipo){
 				sprintf(err_msg,SEM_ERROR__RET_INCOMPATIBLE_TYPES);
 				print_sem_error(err_msg);
-			}
 		}
 		free(err_msg);	
 		write_fn__ret(nasm_file,$2.es_direccion);
@@ -783,6 +777,7 @@
 
 			pos_parametro_actual++;
 			num_parametro_actual++;
+			strcpy($$.lexema,$1.lexema);
 		}
 		else{
 			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
