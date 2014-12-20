@@ -627,6 +627,8 @@
 				sprintf(err_msg, SEM_ERROR__NOT_FUNCTION,$1.lexema);
 				print_sem_error(err_msg);
 			}else{
+				CHECK_IS_ESCALAR($1);
+				CHECK_IS_VARIABLE($1);
 				$$.tipo = sim->data_type;
 				$$.es_direccion = 1;
 			}

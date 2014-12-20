@@ -9,7 +9,7 @@
 
 ---- 4) num_parametros_llamada_actual.
 
-5) Este fijo que sí. Asignación a un TOK_IDENTIFIADOR con mismo tipos pero que sea vector.
+---- 5) Este fijo que sí. Asignación a un TOK_IDENTIFIADOR con mismo tipos pero que sea vector.
 
 ---- 6) es_dirección, wtf.
 
@@ -19,12 +19,12 @@
 
 ---- 9) Gestión de etiquetas
 
-10) No inicializadas las variables.
+---- 10) No inicializadas las variables.
 
-11) Definir vector de 5 y acceder con 6. ¿Controlar eso?
+---- 11) Definir vector de 5 y acceder con 6. ¿Controlar eso?
 
 ---- 12) Check ident defined
 
 ---- 13) Trabajar con boolean.
 
-14) Argumentos de tipo int y llamada con boolean y viceversa, indetectables.
+---- 14) Argumentos de tipo int y llamada con boolean y viceversa, indetectables.
