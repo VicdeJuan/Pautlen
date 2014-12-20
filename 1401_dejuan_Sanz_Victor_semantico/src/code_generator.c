@@ -213,7 +213,7 @@ void write_comparation(FILE * nasm_file,int operation, int direccion){
 
 
 
-void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int is_arg,int scope){
+void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int is_arg,int scope,int size){
 	fprintf(nasm_file,"pop dword eax\n");
 	if (direccion)
 		fprintf(nasm_file, " mov dword eax , [eax]\n");
@@ -222,7 +222,7 @@ void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int 
 	fprintf(nasm_file,"cmp eax,0\n");
 	fprintf(nasm_file,"jl near %s\n",EXE_ERROR_RANGE);
 	fprintf(nasm_file,"; Si el índice es mayor de lo permitido , error en tiempo de ejecución\n");
-	fprintf(nasm_file,"cmp eax, MAX_TAMANIO_VECTOR\n");
+	fprintf(nasm_file,"cmp eax, %d\n",size);
 	/* El pdf dice jl. */
 	fprintf(nasm_file,"jg near %s\n",EXE_ERROR_RANGE);
 

@@ -423,7 +423,7 @@
 				print_sem_error(err_msg);
 			}
 			$$.tipo = sim->data_type;
-			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion,en_explist,ambito_actual);
+			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion,en_explist,ambito_actual,sim->size);
 		}
 
 		if (en_explist)
