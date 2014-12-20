@@ -222,7 +222,7 @@ void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int 
 	fprintf(nasm_file,"cmp eax,0\n");
 	fprintf(nasm_file,"jl near %s\n",EXE_ERROR_RANGE);
 	fprintf(nasm_file,"; Si el índice es mayor de lo permitido , error en tiempo de ejecución\n");
-	fprintf(nasm_file,"cmp eax, %d\n",size);
+	fprintf(nasm_file,"cmp eax, %d\n",size-1);
 	/* El pdf dice jl. */
 	fprintf(nasm_file,"jg near %s\n",EXE_ERROR_RANGE);
 
