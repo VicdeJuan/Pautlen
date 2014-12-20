@@ -56,9 +56,8 @@ int delete_local_table(symbol_table * table){
 
 
 int close_local_ambit(symbol_table * table){
-	delete_local_table(table);
 	table->scope = GLOBAL;
-	return OK;
+	return delete_local_table(table);
 }
 
 int add_symbol(symbol_table * table, symbol * src_sym, int global){

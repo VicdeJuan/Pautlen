@@ -31,8 +31,8 @@ void _write_bss_segment(FILE * f,symbol_table * tabla){
 
 void _write_data_segment(FILE * f){
 	fprintf(f, "segment .data\n");
-	fprintf(f,"err_msg_range db \"Indice fuera de rango\" , 0\n");
-	fprintf(f,"err_msg_zero db \"División por cero\" , 0\n");
+	fprintf(f,"err_msg_range db \"****Error de ejecucion: Indice fuera de rango\" ,10, 0\n");
+	fprintf(f,"err_msg_zero db \"****Error de ejecucion: Division por cero\" ,10, 0\n");
 	fprintf(f, "MAX_TAMANIO_VECTOR db %d\n",MAX_TAMANIO_VECTOR);
 }
 
@@ -213,7 +213,7 @@ void write_comparation(FILE * nasm_file,int operation, int direccion){
 
 
 
-void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int is_arg){
+void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int is_arg,int scope){
 	fprintf(nasm_file,"pop dword eax\n");
 	if (direccion)
 		fprintf(nasm_file, " mov dword eax , [eax]\n");
@@ -231,19 +231,28 @@ void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int 
 	fprintf(nasm_file,"; Cargar en edx la dirección de inicio del vector\n");
 	fprintf(nasm_file,"mov dword edx, _%s\n",name);
 	fprintf(nasm_file,"; Cargar en eax la dirección del elemento indexado\n");
-	fprintf(nasm_file,"lea eax, [edx + eax*4]\n");
-	fprintf(nasm_file,"; Apilar la dirección del elemento indexado\n");
 
-	if (is_arg)
+	fprintf(nasm_file,"lea eax, [edx + eax*4]\n");
+	
+	fprintf(nasm_file,"; Apilar la dirección o el contenido del elemento indexado\n");
+
+	if (is_arg )
 		fprintf(nasm_file, "push dword [eax]\n");
 	else
 		_push_eax(nasm_file);
 
 }
 
-void write_assign__local(FILE * nasm_file,int total, int pos_param, int direccion) {
+void write_assign__local_param(FILE * nasm_file,int total, int pos_param, int direccion) {
 	_load_1_operator(nasm_file, direccion);
 	fprintf(nasm_file, "lea ebx, [ebp+4+4*(%d - %d)]\n",total,pos_param );
+	fprintf(nasm_file,"; Hacer la asignación efectiva\n");
+	fprintf(nasm_file, "mov dword [ebx] , eax\n");
+}
+
+void write_assign__local_var(FILE * nasm_file, int pos, int direccion) {
+	_load_1_operator(nasm_file, direccion);
+	fprintf(nasm_file, "lea ebx, [ebp-4*%d ]\n",pos );
 	fprintf(nasm_file,"; Hacer la asignación efectiva\n");
 	fprintf(nasm_file, "mov dword [ebx] , eax\n");
 }

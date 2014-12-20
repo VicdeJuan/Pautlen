@@ -213,24 +213,27 @@
 	;
 
 	fn_name : TOK_FUNCTION tipo TOK_IDENTIFICADOR { 
-		symbol * sim;
+		symbol * sim,*sim2;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		int i;
 		CHECK_IDENT_NOT_DEFINED($3)
 		else{
-			for (i=0;i<2;i++){
-			/* Recordamos local es 0 y global es 1 */
-				sim = malloc(sizeof(symbol));
-				initialize_simbolo(sim);
-				strcpy(sim->key,$3.lexema);
+			sim = malloc(sizeof(symbol));
+			sim2 = malloc(sizeof(symbol));
+			initialize_simbolo(sim);
+			initialize_simbolo(sim2);
+			strcpy(sim->key,$3.lexema);
+			strcpy(sim2->key,$3.lexema);
 
-				sim->data_type = tipo_actual;
-				sim->symbol_type = FUNCTION;
+			sim->data_type = tipo_actual;
+			sim2->data_type = tipo_actual;
+			sim->symbol_type = FUNCTION;
+			sim2->symbol_type = FUNCTION;
 
-				add_symbol(tabla,sim,i);
-				ambito_actual = LOCAL;
+			add_symbol(tabla,sim,LOCAL);
+			add_symbol(tabla,sim2,GLOBAL);
+			ambito_actual = LOCAL;
 				
-			}
 
 			num_variables_locales_actual = 0;
 			pos_variable_local_actual = 1;
@@ -349,9 +352,21 @@
 	asignacion : TOK_IDENTIFICADOR '=' exp  { 
 		fprintf(logfile,";R43:	<asignacion> ::= <identificador> = <exp>\n"); 
 		symbol * sim;
+		int is_local = 0;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1,1)
-		else{
+		sim = search_symbol(tabla,$1.lexema,ambito_actual);	
+			if(!sim && ambito_actual == GLOBAL){
+				sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
+				print_sem_error(err_msg);
+			}else if (!sim){
+				sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			}else{
+				is_local = 1;
+			}
+			if (!sim){
+				sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
+				print_sem_error(err_msg);
+			}else {
 			CHECK_IS_NOT_FUNCTION($1.lexema);
 			if (sim->data_type != $3.tipo){
 				sprintf(err_msg,SEM_ERROR__ASIG_INCOMPATIBLE_TYPES);
@@ -361,7 +376,12 @@
 			if(ambito_actual != LOCAL)
 				write_assign(nasm_file,$1.lexema,$3.es_direccion,0);
 			else
-				write_assign__local(nasm_file,num_parametro_actual,sim->pos_parameter,$3.es_direccion);
+				if(sim->symbol_type == PARAMETER)
+					write_assign__local_param(nasm_file,num_parametro_actual,sim->pos_parameter,$3.es_direccion);
+				else if(is_local)
+					write_assign__local_var(nasm_file,sim->pos_local_variables,$3.es_direccion);
+				else
+					write_assign(nasm_file,$1.lexema,$3.es_direccion,0);
 		}
 		free(err_msg);	
 
@@ -385,7 +405,17 @@
 		fprintf(logfile,";R48:	<elemento_vector> ::= <identificador> [ <exp> ]\n"); 
 		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1,1)
+		sim = search_symbol(tabla,$1.lexema,ambito_actual);	
+		if(!sim && ambito_actual == GLOBAL){
+			sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
+			print_sem_error(err_msg);
+		}else if (!sim){
+			sim = search_symbol(tabla,$1.lexema,GLOBAL);	
+		}
+		if (!sim){
+			sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
+			print_sem_error(err_msg);
+		}
 		else{
 			CHECK_IS_VECTOR($1.lexema)
 			if ($3.tipo != INT){
@@ -393,10 +423,13 @@
 				print_sem_error(err_msg);
 			}
 			$$.tipo = sim->data_type;
-			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion,en_explist);
+			write_load_vector_element(nasm_file,$1.lexema,$3.es_direccion,en_explist,ambito_actual);
 		}
 
-		$$.es_direccion = 1 ? !en_explist : 0;
+		if (en_explist)
+			$$.es_direccion = 0;
+		else
+			$$.es_direccion = 1;
 		free(err_msg);	
 	}
 	;
@@ -579,11 +612,12 @@
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		if (ambito_actual == LOCAL){
 			sim = search_symbol(tabla,$1.lexema,ambito_actual);
-
-			if (!sim)
+			if (!sim){
 				sim = search_symbol(tabla,$1.lexema,GLOBAL);
-			else
+			}
+			else{
 				is_local = 1;
+			}
 		}else
 			sim = search_symbol(tabla,$1.lexema,GLOBAL);
 
@@ -630,14 +664,14 @@
 		$$.es_direccion = $1.es_direccion;
 		$$.tipo = $1.tipo;
 
-		if (ambito_actual == LOCAL){
-			$$.es_direccion = 0;
-			write_fn__local_var(nasm_file,pos_variable_local_actual,0);
-		}
+
 	}
 	| idf_llamada_funcion '(' lista_expresiones ')'  { 
 		fprintf(logfile,";R88:	<exp> ::= <identificador> ( <lista_expresiones> )\n"); 
 		symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+		if (!sim && ambito_actual == LOCAL)
+			sim = search_symbol(tabla,$1.lexema,GLOBAL);
+
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		if (sim)
 		{
@@ -666,9 +700,16 @@
 
 	idf_llamada_funcion : TOK_IDENTIFICADOR {
 		fprintf(logfile, ";R108.2 <llamada a funcion> ::= identificador\n");
-		symbol * sim;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($1,1)
+		symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+		if (!sim && ambito_actual == LOCAL)
+			sim = search_symbol(tabla,$1.lexema,GLOBAL);
+
+		if (!sim){
+			sprintf(err_msg,SEM_ERROR__FUN_NOT_DEFINED,$1.lexema);
+			print_sem_error(err_msg);
+			free(err_msg);
+		}
 		else{
 			CHECK_IS_FUNCTION(sim->key);
 			if (en_explist == 1){
