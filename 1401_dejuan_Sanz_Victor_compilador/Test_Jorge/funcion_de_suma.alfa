@@ -1,0 +1,16 @@
+main {
+	int a, sum;
+
+	function int suma ( int a; int b ) {
+		int c, j;
+
+		c = a + b;
+		return c;
+	}
+
+	a = 3;
+	sum = suma(a, a);
+	printf sum;
+}
+
+// --- Debe salir 6 ---
