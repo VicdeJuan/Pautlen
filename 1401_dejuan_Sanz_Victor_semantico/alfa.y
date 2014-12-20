@@ -303,7 +303,7 @@
 	idpf : TOK_IDENTIFICADOR {
 		if (ambito_actual != LOCAL)
 			fprintf(logfile,"Tenemos un problema. Buscame y lo vemos");
-		symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+		symbol * sim = search_symbol(tabla,$1.lexema,LOCAL);
 		if (!sim)
 		{
 			sim = malloc(sizeof(symbol));
@@ -485,12 +485,28 @@
 	lectura : TOK_SCANF TOK_IDENTIFICADOR  { 
 		fprintf(logfile,";R54:	<lectura> ::= scanf <identificador>\n"); 
 		symbol * sim;
+		int is_local = 0;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		CHECK_IDENT_DEFINED($2,1)
+		sim = search_symbol(tabla,$1.lexema,ambito_actual);
+		if (!sim && ambito_actual == LOCAL){
+			sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			
+		}else if (ambito_actual == LOCAL)
+			is_local = 1;
+
+		if(!sim){
+			sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
+			print_sem_error(err_msg);
+		}
 		else{
-			CHECK_IS_VARIABLE(sim->key);
+			CHECK_IS_NOT_FUNCTION(sim->key);
 			CHECK_IS_ESCALAR(sim->key);
-			write_scanf(nasm_file,sim->key,sim->data_type==INT);
+			if(sim->symbol_type == PARAMETER)
+				write_scanf__param(nasm_file,sim->key,sim->data_type==INT,num_parametro_actual, sim->pos_parameter);
+			else if(is_local)
+				write_scanf__var_local(nasm_file,sim->key,sim->data_type == INT, sim->pos_local_variables);
+			else
+				write_scanf__var(nasm_file,sim->key,sim->data_type==INT);
 		}
 		free(err_msg);	
 
@@ -628,7 +644,6 @@
 				print_sem_error(err_msg);
 			}else{
 				CHECK_IS_ESCALAR($1);
-				CHECK_IS_VARIABLE($1);
 				$$.tipo = sim->data_type;
 				$$.es_direccion = 1;
 			}

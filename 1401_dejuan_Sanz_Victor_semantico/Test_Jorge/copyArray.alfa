@@ -1,0 +1,43 @@
+main {
+	array int[4] A, B;
+	boolean trash;
+
+
+	function boolean printArray ( int len ) {
+		int i;
+
+		i = 0;
+
+		while( ( i < len ) ) {
+			printf B[i];
+
+			i = i + 1;
+		}
+
+		return true;
+	}
+
+
+	function boolean CopyArray(int iBegin; int iEnd) {
+        int k;
+
+        k = iBegin;
+        while( ( k < iEnd ) ) {
+            B[k] = A[k];
+            k = k + 1;
+        }
+
+        return true;
+    }
+
+	A[0] = 32;
+	A[1] = 3;
+	A[2] = 6;
+	A[3] = 8;
+
+
+	trash = CopyArray(0, 4);
+	trash = printArray(4);
+}
+
+// --- Debe salir 32 \n 3 \n 6 \n 8 ---

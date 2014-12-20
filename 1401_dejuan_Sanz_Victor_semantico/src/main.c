@@ -19,6 +19,13 @@ extern FILE * yyout;
 int main(int argc, char const *argv[])
 {
 	/* Close files and free memory used. */
+
+	if (argc == 1){
+		fprintf(stderr, "Error en los parámetros de entrada.\n");
+		return 0;
+	}
+
+
 	yyin = fopen(argv[1],"r");
 	if (argc >= 2)
 		yyout = fopen(argv[2],"w");

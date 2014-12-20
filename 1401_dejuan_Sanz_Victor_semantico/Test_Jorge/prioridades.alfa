@@ -1,0 +1,7 @@
+main {
+	int a;
+
+	printf 2 + - 3 * 3 - 14 / 7;
+}
+
+// --- Debe salir -9 ---

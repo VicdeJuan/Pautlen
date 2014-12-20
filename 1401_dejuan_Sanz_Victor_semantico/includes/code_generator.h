@@ -86,7 +86,9 @@ void write_assign(FILE * nasm_file,char * name,int direccion,int vector);
  * @param name      
  * @param integer   true if it's an integer, false if bool
  */
-void write_scanf(FILE * nasm_file, char * name, int integer);
+void write_scanf__var(FILE * nasm_file, char * name, int integer);
+void write_scanf__var_local(FILE * nasm_file, char * name, int integer,int pos);
+void write_scanf__param(FILE * nasm_file, char * name, int integer,int total,int pos);
 
 /**
  * 

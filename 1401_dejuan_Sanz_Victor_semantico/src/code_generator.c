@@ -279,9 +279,32 @@ void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
 	fprintf(nasm_file, "; Fin asignacion %s\n", name);
 }
 
+void write_scanf__param(FILE * nasm_file, char * name, int integer,int total,int pos){
 
-void write_scanf(FILE * nasm_file, char * name, int integer){
+	fprintf(nasm_file, "lea eax, [ebp + 4+4*(%d - %d)]\n",total,pos );
+	fprintf(nasm_file, "push dword eax\n");
+	if (integer){
+		fprintf(nasm_file, "call scan_int\n");
+	}else{
+		fprintf(nasm_file, "call scan_boolean\n");
+	}
+	fprintf(nasm_file, "add esp,4\n");
+}
+
+void write_scanf__var(FILE * nasm_file, char * name, int integer){
 	fprintf(nasm_file, "push dword _%s\n", name);
+
+	if (integer){
+		fprintf(nasm_file, "call scan_int\n");
+	}else{
+		fprintf(nasm_file, "call scan_boolean\n");
+	}
+	fprintf(nasm_file, "add esp,4\n");
+}
+
+void write_scanf__var_local(FILE * nasm_file, char * name, int integer,int pos){
+	fprintf(nasm_file, "lea eax, [ebp - 4*%d]\n",pos );
+	fprintf(nasm_file, "push dword eax\n");
 
 	if (integer){
 		fprintf(nasm_file, "call scan_int\n");
