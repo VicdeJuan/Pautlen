@@ -184,19 +184,3 @@ typedef struct{
 */
 
 #endif
-/*
-
-
-	symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
-	if (!sim)
-	{
-
-	}
-	else{
-		
-		sprintf(err_msg, SEM_ERROR_ALREADY_DEF ,$1.lexema);
-		print_sem_error(err_msg);
-		free(err_msg);
-	}
-*/
-

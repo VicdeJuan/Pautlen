@@ -241,6 +241,13 @@ void write_load_vector_element(FILE * nasm_file, char * name, int direccion,int 
 
 }
 
+void write_assign__local(FILE * nasm_file,int total, int pos_param, int direccion) {
+	_load_1_operator(nasm_file, direccion);
+	fprintf(nasm_file, "lea ebx, [ebp+4+4*(%d - %d)]\n",total,pos_param );
+	fprintf(nasm_file,"; Hacer la asignación efectiva\n");
+	fprintf(nasm_file, "mov dword [ebx] , eax\n");
+}
+
 void write_assign(FILE * nasm_file, char * name,int direccion,int vector){
 
 	if (!vector){
@@ -284,7 +291,7 @@ void write_printf(FILE * nasm_file, int es_direccion,int integer){
 		_push_eax(nasm_file);
 	}
 
-	if (integer){		
+	if (integer == INT){		
 		fprintf(nasm_file,"; Si la expresión es de tipo entero\n");
 		fprintf(nasm_file,"call print_int\n");
 	}else{

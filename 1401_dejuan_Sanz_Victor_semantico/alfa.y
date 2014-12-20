@@ -287,13 +287,48 @@
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
 		CHECK_IDENT_DEFINED($2,1)
 		else{
-			sim->variable_type = tipo_actual;
+			sim->data_type = tipo_actual;
 			tipo_actual = NONE;
+			sim->variable_type = ESCALAR;
+			sim->symbol_type = PARAMETER;
 			free(err_msg);	
 		}
 
 	}
 	;
+
+	idpf : TOK_IDENTIFICADOR {
+		if (ambito_actual != LOCAL)
+			fprintf(logfile,"Tenemos un problema. Buscame y lo vemos");
+		symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
+		if (!sim)
+		{
+			sim = malloc(sizeof(symbol));
+			initialize_simbolo(sim);
+			strcpy(sim->key,$1.lexema);
+
+			sim->data_type = tipo_actual;
+			sim->variable_type = clase_actual;
+			if (clase_actual == VECTOR)
+				sim->size = tamanio_vector_actual;
+			sim->symbol_type = VARIABLE;
+
+			add_symbol(tabla,sim,ambito_actual);
+
+			sim->pos_parameter = pos_parametro_actual;
+
+			pos_parametro_actual++;
+			num_parametro_actual++;
+			strcpy($$.lexema,$1.lexema);
+		}
+		else{
+			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
+			sprintf(err_msg, SEM_ERROR__ALREADY_DEF);
+			print_sem_error(err_msg);
+		}
+
+
+	}
 	declaraciones_funcion : declaraciones  { fprintf(logfile,";R28:	<declaraciones_funcion> ::= <declaraciones>\n"); }
 	|  { fprintf(logfile,";R29:	<declaraciones_funcion> ::= \n"); }
 	;
@@ -323,8 +358,10 @@
 				print_sem_error(err_msg);
 			}
 			CHECK_IS_ESCALAR($1.lexema)
-
-			write_assign(nasm_file,$1.lexema,$3.es_direccion,0);
+			if(ambito_actual != LOCAL)
+				write_assign(nasm_file,$1.lexema,$3.es_direccion,0);
+			else
+				write_assign__local(nasm_file,num_parametro_actual,sim->pos_parameter,$3.es_direccion);
 		}
 		free(err_msg);	
 
@@ -552,7 +589,7 @@
 
 		if (sim)
 		{
-			if (!(sim->symbol_type != FUNCTION && sim->variable_type == ESCALAR)){
+			if (sim->symbol_type == FUNCTION ){
 				sprintf(err_msg, SEM_ERROR__NOT_FUNCTION,$1.lexema);
 				print_sem_error(err_msg);
 			}else{
@@ -755,38 +792,7 @@
 	}
 	;
 
-	idpf : TOK_IDENTIFICADOR {
-		if (ambito_actual != LOCAL)
-			fprintf(logfile,"Tenemos un problema. Buscame y lo vemos");
-		symbol * sim = search_symbol(tabla,$1.lexema,ambito_actual);
-		if (!sim)
-		{
-			sim = malloc(sizeof(symbol));
-			initialize_simbolo(sim);
-			strcpy(sim->key,$1.lexema);
-
-			sim->data_type = tipo_actual;
-			sim->variable_type = clase_actual;
-			if (clase_actual == VECTOR)
-				sim->size = tamanio_vector_actual;
-			sim->symbol_type = VARIABLE;
-
-			add_symbol(tabla,sim,ambito_actual);
-
-			sim->pos_parameter = pos_parametro_actual;
-
-			pos_parametro_actual++;
-			num_parametro_actual++;
-			strcpy($$.lexema,$1.lexema);
-		}
-		else{
-			char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-			sprintf(err_msg, SEM_ERROR__ALREADY_DEF);
-			print_sem_error(err_msg);
-		}
-
-
-	}
+	
 
 	identificador : TOK_IDENTIFICADOR {
 		fprintf(logfile,";R108:	<identificador> ::= TOK_IDENTIFICADOR\n\t\t clase_actual: %s \t tipo_actual %s\n",clase_actual == ESCALAR ? "ESCALAR" : "VECTOR" ,tipo_actual == INT ? "INT" : "BOOLEAN"); 
