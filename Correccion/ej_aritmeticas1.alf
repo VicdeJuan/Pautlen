@@ -1,0 +1,30 @@
+// Tratamiento de operaciones aritmeticas
+
+main
+{
+// Declaraciones
+
+    int x, y;
+
+// Sentencias
+
+	scanf x;
+	scanf y;
+
+	printf x+y;
+
+	printf x-y;
+
+	printf x*y;
+
+	printf x/y;
+
+	printf -x;
+
+
+}
+
+
+
+
+
