@@ -66,8 +66,8 @@ void write_execute_errors(FILE * nasm_file){
 	fprintf(nasm_file,"push dword err_msg_zero\n");
 	fprintf(nasm_file,"call print_string\n");
 	fprintf(nasm_file,"add esp, 4\n");
-	fprintf(nasm_file,"fin_err: ret\n");
-	fprintf(nasm_file,"fin: mov eax,1\nmov ebx,0\nint 0x80\n");
+	fprintf(nasm_file,"fin_err: mov eax,1\nret\n");
+	fprintf(nasm_file,"fin: mov eax,0\nret");
 
 }
 

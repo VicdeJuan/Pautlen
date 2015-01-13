@@ -25,7 +25,7 @@
 		fprintf(stderr,"\t****Error semático en [lin %d] debido a : %s\n",line,msg); 
 		free(msg);
 		delete_symbol_table(tabla);
-		exit(-1);
+		exit(0);
 	}
 
 	void yyerror(char* s){
