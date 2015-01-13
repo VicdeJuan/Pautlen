@@ -487,15 +487,15 @@
 		symbol * sim;
 		int is_local = 0;
 		char * err_msg = calloc (MAX_LONG_ID + 50,sizeof(char));
-		sim = search_symbol(tabla,$1.lexema,ambito_actual);
+		sim = search_symbol(tabla,$2.lexema,ambito_actual);
 		if (!sim && ambito_actual == LOCAL){
-			sim = search_symbol(tabla,$1.lexema,GLOBAL);
+			sim = search_symbol(tabla,$2.lexema,GLOBAL);
 			
 		}else if (ambito_actual == LOCAL)
 			is_local = 1;
 
 		if(!sim){
-			sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$1.lexema);
+			sprintf(err_msg, SEM_ERROR__VAR_NOT_DEFINED ,$2.lexema);
 			print_sem_error(err_msg);
 		}
 		else{
