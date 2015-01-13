@@ -160,7 +160,7 @@
 		tag_num = 0;
 
 		/* Inicializamos otras variables.*/
-		nasm_file = fopen(NASM_FILE_NAME,"w");
+		nasm_file = yyout;
 
 	}
 	;

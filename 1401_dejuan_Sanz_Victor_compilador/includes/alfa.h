@@ -30,9 +30,6 @@
 #define MAX_TAMANIO_VECTOR 64
 
 #define MAX_LONG_ID 100
- 
-#define NASM_FILE_NAME "alfa.asm"
-
 
 #define SEM_ERROR__RET_INCOMPATIBLE_TYPES "Retorno incompatible. (no de la lista)"
 
