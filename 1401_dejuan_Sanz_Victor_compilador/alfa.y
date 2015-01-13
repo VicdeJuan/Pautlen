@@ -31,7 +31,7 @@
 	void yyerror(char* s){
 		if (error == 0)
 			fprintf(ERROR_IFACE_SINTA,"\t****Error sintáctico en [lin %d, col %d]\n",line,column); 
-		return;
+		exit(0);
 	}
 
 
