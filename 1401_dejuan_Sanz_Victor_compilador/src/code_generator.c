@@ -61,12 +61,13 @@ void write_execute_errors(FILE * nasm_file){
 	fprintf(nasm_file,"push dword err_msg_range\n");
 	fprintf(nasm_file,"call print_string\n");
 	fprintf(nasm_file,"add esp, 4\n");
-	fprintf(nasm_file,"jmp near fin\n");
+	fprintf(nasm_file,"jmp near fin_err\n");
 	fprintf(nasm_file,"%s: ",EXE_ERROR_ZERO);
 	fprintf(nasm_file,"push dword err_msg_zero\n");
 	fprintf(nasm_file,"call print_string\n");
 	fprintf(nasm_file,"add esp, 4\n");
-	fprintf(nasm_file,"fin: ret\n");
+	fprintf(nasm_file,"fin_err: ret\n");
+	fprintf(nasm_file,"fin: mov eax,1\nmov ebx,0\nint 0x80\n");
 
 }
 
