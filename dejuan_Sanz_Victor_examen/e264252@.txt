@@ -1,0 +1,220 @@
+e264252@ mié ene 14 12:10:04 CET 2015
+//150.244.64.22/e264252 on /home/alumnos/e264252/UnidadH type cifs (rw)
+eth0      Link encap:Ethernet  direcciónHW 2c:41:38:b3:59:10  
+          Direc. inet:150.244.64.183  Difus.:150.244.67.255  Másc:255.255.252.0
+          Dirección inet6: fe80::2e41:38ff:feb3:5910/64 Alcance:Enlace
+          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+          Paquetes RX:421693 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:22886 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:1000 
+          Bytes RX:88074931 (88.0 MB)  TX bytes:2510774 (2.5 MB)
+          Interrupción:20 Memoria:fe400000-fe420000 
+
+lo        Link encap:Bucle local  
+          Direc. inet:127.0.0.1  Másc:255.0.0.0
+          Dirección inet6: ::1/128 Alcance:Anfitrión
+          ACTIVO BUCLE FUNCIONANDO  MTU:65536  Métrica:1
+          Paquetes RX:2444 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:2444 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:0 
+          Bytes RX:731101 (731.1 KB)  TX bytes:731101 (731.1 KB)
+
+vmnet1    Link encap:Ethernet  direcciónHW 00:50:56:c0:00:01  
+          Direc. inet:192.168.124.1  Difus.:192.168.124.255  Másc:255.255.255.0
+          Dirección inet6: fe80::250:56ff:fec0:1/64 Alcance:Enlace
+          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+          Paquetes RX:0 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:870 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:1000 
+          Bytes RX:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+vmnet8    Link encap:Ethernet  direcciónHW 00:50:56:c0:00:08  
+          Direc. inet:192.168.203.1  Difus.:192.168.203.255  Másc:255.255.255.0
+          Dirección inet6: fe80::250:56ff:fec0:8/64 Alcance:Enlace
+          ACTIVO DIFUSIÓN FUNCIONANDO MULTICAST  MTU:1500  Métrica:1
+          Paquetes RX:0 errores:0 perdidos:0 overruns:0 frame:0
+          Paquetes TX:880 errores:0 perdidos:0 overruns:0 carrier:0
+          colisiones:0 long.colaTX:1000 
+          Bytes RX:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+cd Desktop/
+ñs
+ls
+cd examen_pautlen/
+ls
+make clean
+make
+ls
+sh compilar.sh 
+ls
+rm a.asm 
+rm alfa.exe 
+ls
+rm alfa.asm 
+ls
+make clean
+ls
+mv Test_Jorge/ Tests
+ls
+rm posibles\ errores 
+ls
+rm -r Tests/
+ls
+rm alfa.o
+ls
+rm log 
+ls
+make
+make clean
+sh compilar.sh 
+ls
+rm log 
+rm a.asm 
+make clean
+sh compilar.sh 
+ls
+rm a.asm 
+ls
+sh compilar.sh 
+ls
+./alfa pruebas.alf a.asm
+sh compilar.sh 
+./alfa pruebas.alf a.asm
+ls
+./alfa pruebas.alf a.asm
+echo $?
+git status
+git init
+git commit -a -m "Morfologico y sintactio hechos"
+git add .
+git commit -a -m "Morfologico y sintactio hechos"
+ls
+sh compilar.sh 
+make
+make clean
+make
+sh compilar.sh 
+ls
+./alfa pruebas.alf a.asm
+sh compilar.sh 
+git commit -a -m "Errores semánticos controlados. A por la funcionalidad. Corregida inicialización de ámbito global"
+git commit --amend --reset-author
+ls
+sh compilar.sh 
+make
+sh compilar.sh 
+ls
+./alfa pruebas.alf a.asm
+sh compilar.sh 
+git status
+git commit -a -m "Implementado, pero inicializa a la inversa. Sigue faltando el por defecto"
+git status
+sh compilar.sh 
+make
+sh compilar.sh 
+cd ..
+ls
+gcc prueba.c 
+./a.out 
+gcc prueba.c 
+./a.out 
+gcc prueba.c 
+./a.out 
+gcc prueba.c 
+./a.out 
+cd examen_pautlen/
+ls
+sh compilar.sh 
+sh compilar.sh  
+sh compilar.sh 
+cd ..
+cd entrega/
+ls
+make clean
+make
+make clean
+ls
+rm log 
+rm alfa.exe 
+le
+ls
+ls -a
+rm pruebas.alf 
+rm *.sublime*
+ls
+rm compilar.sh 
+rm a.ase
+rm a.asm
+rm alfa.o 
+ls
+rm 1401_dejuan_Sanz_Victor_compilador.zip 
+ls
+rm -r pdf/
+ls
+make
+make clean
+ls
+make
+ls
+./alfa ../examen_pautlen/pruebas.alf ../examen_pautlen/ex.asm
+nasm -g -o ../examen_pautlen/ex.o -f elf32 ../examen_pautlen/ex.asm 
+gcc -Wall -o ../examen_pautlen/alfa.exe ../examen_pautlen/ex.o ../examen_pautlen/alfalib.o 
+../examen_pautlen/alfa.exe 
+ls
+make clea
+make clean
+ls
+cd ..
+ls
+cd examen_pautlen/
+ls
+sh compilar.sh 
+cd ..
+cd dejuan_Sanz_Victor_examen/
+ls
+make
+cd ..
+cp dejuan_Sanz_Victor_examen/alfa examen_pautlen/
+cd dejuan_Sanz_Victor_examen/
+ls
+make clean
+cd ..
+ls
+cd ..
+ls
+cd Desktop/
+ls
+cd pruebas/dejuan_Sanz_Victor_examen/
+ls
+make
+cp alfa ../../examen_pautlen/
+cd ../../examen_pautlen/
+ls
+sh compilar.sh 
+cd Desktop/
+ls
+cd dejuan_Sanz_Victor_examen/
+ls
+rm ej.alf~
+ls
+make
+ls
+./alfa ej.alf a.asm
+ls
+make clean
+ls
+rm log 
+cd Desktop/examen_pautlen/
+ls
+nano compilar.sh 
+sh compilar.sh 
+cd Desktop/dejuan_Sanz_Victor_examen
+ls
+rm -r auxsrc/
+ls
+make
+ls
+cp Downloads/firma.sh .
+ls
+exit
+e264252@ mié ene 14 12:10:04 CET 2015

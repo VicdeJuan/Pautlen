@@ -1,0 +1,10 @@
+main{
+	array int[4] v;
+
+	init v{1;3;5;7};
+	printf v[0];
+	printf v[1];
+	printf v[2];
+	printf v[3];
+}
+
