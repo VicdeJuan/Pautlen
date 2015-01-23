@@ -1,0 +1,19 @@
+main
+{
+
+array int[4] v;
+array int[4] w;
+
+w[0] = 1;
+w[1] = 2;
+w[2] = 3;
+w[3] = 4;
+
+init v {w[0]; w[1]; w[2]; w[3]};
+
+printf v[0];
+printf v[1];
+printf v[2];
+printf v[3];
+
+}

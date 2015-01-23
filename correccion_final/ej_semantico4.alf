@@ -1,0 +1,13 @@
+main
+{
+
+array boolean[4] z;
+
+init v {1;false;false;false};
+
+printf v[0];
+printf v[1];
+printf v[2];
+printf v[3];
+
+}

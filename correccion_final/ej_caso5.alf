@@ -1,0 +1,13 @@
+main
+{
+
+array int[4] v;
+
+init v {0+1;8-6;9/3;-4*-1};
+
+printf v[0];
+printf v[1];
+printf v[2];
+printf v[3];
+
+}

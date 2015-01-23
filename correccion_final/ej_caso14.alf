@@ -1,0 +1,20 @@
+main
+{
+
+array boolean[4] v;
+
+function boolean identidad (boolean x)
+{
+return x;
+}
+
+
+
+init v {identidad(false);identidad(true);identidad(false);identidad(true)};
+
+printf v[0];
+printf v[1];
+printf v[2];
+printf v[3];
+
+}

@@ -1,0 +1,19 @@
+main
+{
+
+array boolean[4] v;
+boolean i, j, k, l;
+
+i=false;
+j=true;
+k=false;
+l=true;
+
+init v {i;j;k;l};
+
+printf v[0];
+printf v[1];
+printf v[2];
+printf v[3];
+
+}

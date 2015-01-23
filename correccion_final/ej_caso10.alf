@@ -1,0 +1,15 @@
+main
+{
+
+array boolean[6] v;
+
+init v {(1 == 1);  (1 != 0); (1<= 1); (1 >= 1); (0<1); (1>0)};
+
+printf v[0];
+printf v[1];
+printf v[2];
+printf v[3];
+printf v[4];
+printf v[5];
+
+}
